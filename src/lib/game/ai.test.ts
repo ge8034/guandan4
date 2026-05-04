@@ -465,10 +465,11 @@ describe('decideLead 全分支覆盖', () => {
     }
   });
 
-  it('只有对子和三同张无孤立时出最小对子', () => {
+  it('只有对子和三同张无孤立且手牌大于5时出最小对子', () => {
     const hand: Card[] = [
       c(S, 6), c(H, 6), c(C, 6),
       c(S, 9), c(H, 9),
+      c(S, 10),
     ];
     const result = aiDecide(hand, null, levelRank);
     expect(result.type).toBe('play');
@@ -594,7 +595,7 @@ describe('火箭+极端手牌决策', () => {
     }
   });
 
-  it('两组炸弹+单张跟牌管不上时用炸弹清场', () => {
+  it('手牌9张两组炸弹跟牌管不上时手牌多过牌保护', () => {
     const hand: Card[] = [
       c(S, 5), c(H, 5), c(C, 5), c(D, 5),
       c(S, 9), c(H, 9), c(C, 9), c(D, 9),
@@ -602,10 +603,7 @@ describe('火箭+极端手牌决策', () => {
     ];
     const lastPlay = classifyHand([c(S, 14), c(H, 14)], levelRank)!;
     const result = aiDecide(hand, lastPlay, levelRank);
-    expect(result.type).toBe('play');
-    if (result.type === 'play') {
-      expect(classifyHand(result.cards, levelRank)!.type).toBe('bomb');
-    }
+    expect(result.type).toBe('pass');
   });
 
   it('全单张手牌对手出对子时过牌', () => {
