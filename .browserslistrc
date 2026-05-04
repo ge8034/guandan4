@@ -1,0 +1,22 @@
+# 支持的浏览器版本
+# Chrome 最新2个版本
+last 2 Chrome versions
+
+# Safari 最新2个版本
+last 2 Safari versions
+
+# iOS Safari 最新2个版本
+last 2 iOS versions
+
+# 微信内核（基于Chromium）
+last 2 ChromeAndroid versions
+
+# Firefox 最新2个版本
+last 2 Firefox versions
+
+# Edge 最新2个版本
+last 2 Edge versions
+
+# 不支持IE浏览器
+not IE 11
+not dead

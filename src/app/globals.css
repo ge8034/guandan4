@@ -1,0 +1,386 @@
+@import 'tailwindcss';
+
+/* ========================================
+   GuanDan4 主题系统
+   掼蛋在线卡牌游戏 — OKLCH 色彩空间
+   ======================================== */
+
+/* === Tailwind CSS v4 主题配置 === */
+@theme {
+  /* 品牌色 — 靛蓝 (OKLCH) */
+  --color-accent: oklch(0.55 0.22 280);
+  --color-accent-light: oklch(0.65 0.18 280);
+  --color-accent-dark: oklch(0.42 0.2 280);
+
+  /* CTA 色 — 暖橙 */
+  --color-cta: oklch(0.67 0.19 50);
+  --color-cta-light: oklch(0.75 0.15 50);
+  --color-cta-dark: oklch(0.55 0.18 50);
+
+  /* 牌桌色 */
+  --color-table: oklch(0.38 0.12 150);
+  --color-table-light: oklch(0.45 0.11 150);
+  --color-table-dark: oklch(0.28 0.08 150);
+  --color-felt: oklch(0.42 0.12 148);
+
+  /* 中性色 — 染色石板灰 (混入微量靛蓝色调) */
+  --color-neutral-50: oklch(0.985 0.002 270);
+  --color-neutral-100: oklch(0.965 0.003 270);
+  --color-neutral-200: oklch(0.92 0.004 270);
+  --color-neutral-300: oklch(0.84 0.005 270);
+  --color-neutral-400: oklch(0.65 0.01 270);
+  --color-neutral-500: oklch(0.5 0.01 270);
+  --color-neutral-600: oklch(0.38 0.01 270);
+  --color-neutral-700: oklch(0.3 0.01 270);
+  --color-neutral-800: oklch(0.22 0.01 270);
+  --color-neutral-900: oklch(0.15 0.01 270);
+
+  /* 语义色 */
+  --color-success: oklch(0.62 0.19 145);
+  --color-success-light: oklch(0.85 0.1 145);
+  --color-warning: oklch(0.72 0.16 80);
+  --color-warning-light: oklch(0.9 0.08 80);
+  --color-error: oklch(0.55 0.22 25);
+  --color-error-light: oklch(0.8 0.08 25);
+  --color-info: oklch(0.6 0.18 250);
+
+  /* 卡牌色 */
+  --color-card-bg: oklch(0.97 0.01 95);
+  --color-card-red: oklch(0.5 0.22 25);
+  --color-card-black: oklch(0.18 0.005 270);
+  --color-card-border: oklch(0.82 0.04 95);
+  --color-card-shadow: oklch(0 0 0 / 0.12);
+
+  /* 字体 */
+  --font-heading: var(--font-fredoka), 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-body: var(--font-nunito), 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-card: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* === CSS 自定义属性 === */
+:root {
+  /* 4pt 基数间距系统 (语义化命名) */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+  --space-2xl: 2rem;
+  --space-3xl: 3rem;
+  --space-4xl: 4rem;
+
+  /* 字体大小 — 5级模块化比例 (1.25) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+
+  /* 行高 */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* 动效时长 — 100/300/500 规则 */
+  --duration-micro: 100ms;
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 350ms;
+  --duration-layout: 450ms;
+
+  /* 缓动函数 — ease-out 优先 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* 圆角 */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* 阴影系统 — 彩色投影替代纯黑投影 */
+  --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px oklch(0 0 0 / 0.06), 0 2px 4px oklch(0 0 0 / 0.04);
+  --shadow-lg: 0 10px 25px oklch(0 0 0 / 0.08), 0 4px 10px oklch(0 0 0 / 0.04);
+  --shadow-xl: 0 20px 50px oklch(0 0 0 / 0.12), 0 8px 20px oklch(0 0 0 / 0.06);
+  --shadow-card: 0 2px 8px var(--color-card-shadow);
+  --shadow-accent: 0 0 20px oklch(0.55 0.22 280 / 0.25);
+
+  /* Z-index 层级 */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  /* 卡牌尺寸 */
+  --card-width: 4.5rem;
+  --card-height: 6.75rem;
+  --card-radius: 0.5rem;
+
+  /* 牌桌布局 */
+  --card-overlap: -1.9rem;
+  --card-overlap-mobile: -1.2rem;
+  --hand-scale: 1.2;
+  --my-hand-scale: 1.2;
+  --hand-scale-mobile: 1.0;
+  --player-offset-left: -7.25rem;
+  --player-offset-right: -6.875rem;
+}
+
+/* === 全局基础样式 === */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  line-height: var(--leading-normal);
+  color: var(--color-neutral-900);
+  background-color: var(--color-neutral-50);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* 正文可读性 — 限制行宽 */
+p, li {
+  max-width: 65ch;
+}
+
+/* === 扑克牌桌背景 === */
+.poker-table-bg {
+  background:
+    radial-gradient(ellipse at center, var(--color-table) 0%, var(--color-table-dark) 100%);
+}
+
+.poker-table-border {
+  border: 6px solid oklch(0.3 0.04 60);
+  border-radius: 1rem;
+  box-shadow:
+    inset 0 0 40px oklch(0 0 0 / 0.2),
+    0 4px 20px oklch(0 0 0 / 0.3);
+}
+
+/* === 焦点环 === */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* === 触摸目标最小尺寸 === */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* 扩大触控区域的伪元素方案（用于尺寸受限的小组件） */
+.touch-target-expand {
+  position: relative;
+}
+
+.touch-target-expand::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
+
+/* === 玻璃态工具类 === */
+.glass-dark {
+  background: oklch(0.15 0.01 270 / 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* === 减弱动画 === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* === 自定义滚动条 === */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
+}
+
+/* === 选择颜色 === */
+::selection {
+  background-color: oklch(0.55 0.22 280 / 0.2);
+  color: var(--color-neutral-900);
+}
+
+/* === 进出场动画工具类 === */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in var(--duration-base) var(--ease-out) both;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up var(--duration-slow) var(--ease-out) both;
+}
+
+.animate-fade-in-scale {
+  animation: fade-in-scale var(--duration-base) var(--ease-out) both;
+}
+
+.animate-slide-down {
+  animation: slide-down var(--duration-fast) var(--ease-out) both;
+}
+
+/* === 出牌飞行动画 === */
+@keyframes fly-away {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-10px) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.7);
+  }
+}
+
+.animate-fly-away {
+  animation: fly-away 200ms var(--ease-out) both;
+  pointer-events: none;
+}
+
+/* === 牌桌入场动画（增强版） === */
+@keyframes card-deal-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-card-deal-in {
+  animation: card-deal-in 250ms var(--ease-out) both;
+}
+
+/* 交错入场延迟工具 */
+.stagger-1 { animation-delay: 0ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 160ms; }
+.stagger-4 { animation-delay: 240ms; }
+.stagger-5 { animation-delay: 320ms; }
+.stagger-6 { animation-delay: 400ms; }
+
+/* === 卡牌骨架屏动画 === */
+@keyframes card-skeleton-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.card-skeleton {
+  display: inline-flex;
+  width: var(--card-width);
+  height: var(--card-height);
+  border-radius: var(--card-radius);
+  background: oklch(1 0 0 / 0.1);
+  border: 2px dashed oklch(1 0 0 / 0.15);
+  animation: card-skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.card-skeleton-sm {
+  width: calc(var(--card-width) * 0.6);
+  height: calc(var(--card-height) * 0.6);
+}
+
+/* === 牌桌呼吸灯点 === */
+@keyframes breathe {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 4px oklch(0.65 0.18 280 / 0.4);
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 8px oklch(0.65 0.18 280 / 0.7);
+  }
+}
+
+.breathe-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent-light);
+  animation: breathe 2s ease-in-out infinite;
+}

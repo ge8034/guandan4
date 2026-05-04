@@ -1,0 +1,29 @@
+否,类别,问题,关键词,平台,描述,应该做,不应该做,良好代码示例,糟糕代码示例,严重程度
+1,无障碍性,图标按钮标签,图标按钮 aria-label,网页,仅含图标的按钮必须有可访问的名称,为图标按钮添加aria-label,没有标签的图标按钮,"<button aria-label='关闭'><XIcon /></button>","<button><XIcon /></</button>",严重
+2,无障碍性,表单控件标签,表单 输入 标签 aria,网页,所有表单控件都需要标签或aria-label,使用label元素或aria-label,没有可访问名称的输入框,"<label for='email'>电子邮件</label><input id='email' />","<input placeholder='电子邮件' />",严重
+3,无障碍性,键盘处理器,键盘 onclick onkeydown,网页,交互元素必须支持键盘交互,在onClick旁添加onKeyDown,仅支持点击交互,"<div onClick={fn} onKeyDown={fn} tabIndex={0}>","<div onClick={fn}>",高
+4,无障碍性,语义化HTML,语义化 button a label,网页,使用ARIA属性之前先使用语义化HTML,使用button/a/label元素,带role属性的div,"<button onClick={fn}>提交</button>","<div role='button' onClick={fn}>提交</div>",高
+5,无障碍性,Aria Live,aria-live polite async,网页,异步更新需要aria-live供屏幕阅读器使用,为动态内容添加aria-live='polite',无提示的异步更新,"<div aria-live='polite'>{状态}</div>","<div>{状态}</div> // 无通知",中
+6,无障碍性,装饰性图标,aria-hidden 装饰性 图标,网页,装饰性图标应对屏幕阅读器隐藏,为装饰性图标添加aria-hidden='true',被朗读的装饰性图标,"<Icon aria-hidden='true' />","<Icon /> // 被读作'图像'",中
+7,焦点,可见的焦点状态,focus-visible outline ring,网页,所有交互元素都需要可见的焦点状态,使用:focus-visible搭配边框/轮廓,无焦点指示,"focus-visible:ring-2 focus-visible:ring-blue-500","outline-none // 无替代方案",严重
+8,焦点,切勿移除轮廓,outline-none 焦点 替代方案,网页,切勿在没有提供替代方案的情况下移除轮廓,用可见的替代方案替换轮廓,完全移除轮廓,"focus:outline-none focus:ring-2","focus:outline-none // 无其他设置",严重9，焦点，复选框和单选框点击目标，复选框单选框标签目标，网络，复选框/单选框必须与标签共享点击目标，将输入框和标签包裹在一起，单独的小复选框，"<label class='flex gap-2'><input type='checkbox' /><span>选项</span></label>"，"<input type='checkbox' id='x' /><label for='x'>选项</label>"，中等
+10，表单，自动完成属性，自动完成输入表单，网络，输入框需要自动完成属性以实现自动填充，添加适当的自动完成值，缺少自动完成功能，"<input autocomplete='email' type='email' />"，"<input type='email' />"，高
+11，表单，语义化输入类型，输入类型邮箱电话网址，网络，使用语义化的输入类型属性，使用邮箱/电话/网址/数字类型，所有内容都用文本类型，"<input type='email' />"，"<input type='text' /> // 用于邮箱"，中等
+12，表单，永不阻止粘贴，粘贴事件密码，网络，永不阻止粘贴功能，允许在所有输入框上粘贴，阻止在密码/代码上粘贴，"<input type='password' />"，"<input onPaste={e => e.preventDefault()} />"，高
+13，表单，禁用拼写检查，拼写检查邮箱代码，网络，在邮箱和代码上禁用拼写检查，在代码上设置spellcheck='false'，对技术性输入进行拼写检查，"<input spellCheck='false' type='email' />"，"<input type='email' /> // 红色波浪线"，低
+14，表单，提交按钮启用，提交按钮禁用加载，网络，保持提交按钮启用并在请求期间显示 spinner，显示加载 spinner 并保持启用状态，在提交期间禁用按钮，"<button>{loading ? <Spinner /> : '提交'}</button>"，"<button disabled={loading}>提交</button>"，中等
+15，表单，内联错误，错误消息内联焦点，网络，在问题字段附近内联显示错误消息，内联错误并聚焦于第一个错误，顶部的单个错误，"<input /><span class='text-red-500'>{error}</span>"，"<div class='error'>{allErrors}</div> // 在顶部"，高
+16，性能，虚拟列表，虚拟列表50项，网络，对超过50项的列表进行虚拟化，对大型数据集使用虚拟列表，渲染所有项，"<VirtualList items={items} />"，"items.map(item => <Item />)"，高17,性能,避免布局读取,layout read render getboundingclientrect,Web,避免在渲染阶段读取布局,在效果或回调中读取布局,在渲染中使用getBoundingClientRect,"useEffect(() => { el.getBoundingClientRect() })","const rect = el.getBoundingClientRect() // 在渲染中",中等
+18,性能,批量DOM操作,batch dom write read,Web,组合DOM操作以减少重排,先批量写入再读取,交错进行读写操作,"writes.forEach(w => w()); reads.forEach(r => r())","write(); read(); write(); read(); // 抖动",中等
+19,性能,预连接CDN,preconnect link cdn,Web,为CDN域名添加预连接链接,预连接到已知域名,无预连接提示,"<link rel='preconnect' href='https://cdn.example.com' />","// 无预连接提示",低
+20,性能,图片懒加载,lazy loading image below-fold,Web,对折叠区域下方的图片进行懒加载,对折叠区域下方的图片使用loading='lazy',急切地加载所有图片,"<img loading='lazy' src='...' />","<img src='...' /> // 仅折叠区域上方",中等
+21,状态,URL反映状态,url state query params,Web,URL应反映当前UI状态,将筛选器/标签/分页同步到URL,状态仅存在于内存中,"?tab=settings&page=2","仅使用useState // 刷新时丢失",高
+22,状态,深度链接,deep link stateful component,Web,有状态组件应支持深度链接,允许通过URL共享当前视图,无可共享状态,"router.push({ query: { ...filters } })","setFilters(f) // 不在URL中",中等
+23,状态,确认破坏性操作,confirm destructive delete modal,Web,破坏性操作需要确认,删除前显示确认对话框,未经确认直接删除,"if (confirm('删除?')) delete()","onClick={delete} // 无确认",高
+24,排版,正确的Unicode,unicode ellipsis quotes,Web,使用正确的Unicode字符,使用……弯引号和适当的破折号,ASCII近似值,"带有正确省略号的'Hello...'","带有三个点的'Hello...'",低
+25,排版,文本溢出,truncate line-clamp overflow,Web,正确处理文本溢出,使用截断/行限制/断词,文本溢出容器,"<p class='truncate'>长文本……</p>","<p>长文本……</p> // 溢出",中等
+26,排版,非断行空格,nbsp unit brand,Web,在单位和品牌名称中使用非断行空格,在数字和单位之间使用&nbsp;,"10&nbsp;kg或Next.js&nbsp;14","10 kg // 可能换行",低
+27,反模式,不禁止缩放,viewport zoom disable,Web,绝不在视口元标签中禁止缩放,允许用户缩放,"<meta name='viewport' content='width=device-width'>","<meta name='viewport' content='maximum-scale=1'>",严重
+28,反模式,不使用transition all,transition all specific,Web,避免使用transition: all - 指定属性,过渡特定属性,transition: all,"transition-colors duration-200","transition-all duration-200",中等
+29,反模式,轮廓替换,outline-none ring focus,Web,绝不要使用outline-none而不进行替换,提供可见的焦点替换,仅移除轮廓而不替换,"focus:outline-none focus:ring-2 focus:ring-blue-500","focus:outline-none // 单独使用",严重
+30,反模式,不使用硬编码日期,date format intl locale,Web,使用Intl进行日期/数字格式化,使用Intl.DateTimeFormat,硬编码日期格式,"new Intl.DateTimeFormat('en').format(date)","date.toLocaleDateString() // 或手动格式化",中等
