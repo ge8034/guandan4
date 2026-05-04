@@ -432,3 +432,202 @@ describe('AI 极端手牌', () => {
     }
   });
 });
+
+describe('decideLead 全分支覆盖', () => {
+  const levelRank = 2;
+
+  it('多个孤立单张时出最小的', () => {
+    const hand: Card[] = [c(S, 14), c(S, 10), c(S, 8), c(H, 5), c(H, 5)];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards).toHaveLength(1);
+      expect(result.cards[0].value).toBe(8);
+    }
+  });
+
+  it('无孤立有对子时出最小对子', () => {
+    const hand: Card[] = [c(S, 5), c(H, 5), c(C, 5), c(D, 5)];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('pair');
+    }
+  });
+
+  it('手牌<=5且能三带二一组出完直接清手', () => {
+    const hand: Card[] = [c(S, 5), c(H, 5), c(C, 5), c(S, 3), c(H, 3)];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards.length).toBe(5);
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('triple_pair');
+    }
+  });
+
+  it('只有对子和三同张无孤立时出最小对子', () => {
+    const hand: Card[] = [
+      c(S, 6), c(H, 6), c(C, 6),
+      c(S, 9), c(H, 9),
+    ];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('pair');
+    }
+  });
+
+  it('孤立单张含王时优先出小孤立而非王', () => {
+    const hand: Card[] = [
+      c('joker', 200), c('joker', 100),
+      c(S, 4), c(S, 8), c(S, 13),
+    ];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards).toHaveLength(1);
+      expect(result.cards[0].value).toBeLessThan(100);
+    }
+  });
+});
+
+describe('decideFollow 完整决策链', () => {
+  const levelRank = 2;
+
+  it('对手出单A手牌4张全炸弹时用炸弹清场', () => {
+    const hand: Card[] = [c(S, 8), c(H, 8), c(C, 8), c(D, 8)];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('bomb');
+    }
+  });
+
+  it('对手出炸弹手牌有火箭且<=8时用火箭', () => {
+    const hand: Card[] = [
+      c(S, 3), c(S, 4), c(S, 6), c(S, 7),
+      c('joker', 200), c('joker', 200), c('joker', 100), c('joker', 100),
+    ];
+    const lastPlay = classifyHand([c(S, 5), c(H, 5), c(C, 5), c(D, 5)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('rocket');
+    }
+  });
+
+  it('手牌6张且非炸弹管不上时用炸弹', () => {
+    const hand: Card[] = [
+      c(S, 5), c(H, 5), c(C, 5), c(D, 5),
+      c(S, 3), c(S, 4),
+    ];
+    const lastPlay = classifyHand([c(S, 14), c(H, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards.length).toBeGreaterThanOrEqual(4);
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('bomb');
+    }
+  });
+
+  it('非炸弹能管上时选分值最低刚好管上的', () => {
+    const hand: Card[] = [c(S, 10), c(H, 12), c(C, 14), c(D, 9)];
+    const lastPlay = classifyHand([c(S, 9)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards[0].value).toBe(10);
+    }
+  });
+
+  it('非炸弹管不上且无炸弹时过牌', () => {
+    const hand: Card[] = [c(S, 3), c(S, 4), c(S, 5), c(S, 6), c(S, 7)];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('pass');
+  });
+
+  it('对手出对子非炸弹有对子可管时出刚好管上的对子', () => {
+    const hand: Card[] = [
+      c(S, 4), c(H, 4),
+      c(S, 6), c(H, 6),
+      c(S, 9), c(H, 9),
+    ];
+    const lastPlay = classifyHand([c(S, 5), c(H, 5)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards[0].value).toBe(6);
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('pair');
+    }
+  });
+});
+
+describe('火箭+极端手牌决策', () => {
+  const levelRank = 2;
+
+  it('火箭+普通牌领牌时不出火箭', () => {
+    const hand: Card[] = [
+      c('joker', 200), c('joker', 200),
+      c('joker', 100), c('joker', 100),
+      c(S, 3), c(S, 5), c(S, 8), c(S, 10),
+    ];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(classifyHand(result.cards, levelRank)!.type).not.toBe('rocket');
+    }
+  });
+
+  it('火箭+少量普通牌对手出炸弹时用火箭', () => {
+    const hand: Card[] = [
+      c(S, 3), c(S, 4),
+      c('joker', 200), c('joker', 200),
+      c('joker', 100), c('joker', 100),
+    ];
+    const lastPlay = classifyHand([c(S, 8), c(H, 8), c(C, 8), c(D, 8)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('rocket');
+    }
+  });
+
+  it('两组炸弹+单张跟牌管不上时用炸弹清场', () => {
+    const hand: Card[] = [
+      c(S, 5), c(H, 5), c(C, 5), c(D, 5),
+      c(S, 9), c(H, 9), c(C, 9), c(D, 9),
+      c(S, 3),
+    ];
+    const lastPlay = classifyHand([c(S, 14), c(H, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('bomb');
+    }
+  });
+
+  it('全单张手牌对手出对子时过牌', () => {
+    const hand: Card[] = [
+      c(S, 3), c(H, 5), c(C, 7), c(D, 9),
+      c(S, 11), c(H, 13),
+    ];
+    const lastPlay = classifyHand([c(S, 4), c(H, 4)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('pass');
+  });
+
+  it('全炸弹手牌领牌场景不出炸弹', () => {
+    const hand: Card[] = [
+      c(S, 3), c(H, 3), c(C, 3), c(D, 3),
+      c(S, 5), c(H, 5), c(C, 5), c(D, 5),
+      c(S, 7), c(H, 7), c(C, 7), c(D, 7),
+    ];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(classifyHand(result.cards, levelRank)!.type).not.toBe('bomb');
+    }
+  });
+});

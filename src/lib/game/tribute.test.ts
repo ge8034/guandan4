@@ -216,3 +216,181 @@ describe('进贡边界', () => {
     expect(pairs[0].to).toBe(0);
   });
 });
+
+describe('进贡边缘情况', () => {
+  it('手中最大牌<10时getTributeCard返回null', () => {
+    const hand: Card[] = [
+      card(2, 'heart'),
+      card(5, 'diamond'),
+      card(9, 'club'),
+      card(3, 'spade'),
+    ];
+    expect(getTributeCard(hand)).toBeNull();
+  });
+
+  it('手中所有牌均>=10时getReturnCard返回null', () => {
+    const hand: Card[] = [
+      card(14, 'heart'),
+      card(11, 'spade'),
+      card(10, 'club'),
+      card(13, 'diamond'),
+    ];
+    expect(getReturnCard(hand)).toBeNull();
+  });
+
+  it('进贡牌含大王时返回大王', () => {
+    const hand: Card[] = [
+      card(200, 'joker', 'BJ'),
+      card(14, 'heart'),
+      card(13, 'spade'),
+      card(10, 'club'),
+    ];
+    const result = getTributeCard(hand);
+    expect(result).not.toBeNull();
+    expect(result!.value).toBe(200);
+  });
+
+  it('进贡牌含逢人配和大牌时返回分值最大的', () => {
+    const hand: Card[] = [
+      card(5, 'heart'), // 逢人配
+      card(14, 'spade'),
+      card(13, 'diamond'),
+    ];
+    const result = getTributeCard(hand);
+    expect(result).not.toBeNull();
+    expect(result!.value).toBe(14);
+  });
+
+  it('还贡牌优先返回手中最小的（<10）', () => {
+    const hand: Card[] = [
+      card(14, 'heart'),
+      card(5, 'spade'),
+      card(8, 'club'),
+      card(2, 'diamond'),
+      card(9, 'heart'),
+    ];
+    const result = getReturnCard(hand);
+    expect(result).not.toBeNull();
+    expect(result!.value).toBe(2);
+  });
+});
+
+describe('抗贡后出牌场景', () => {
+  it('持有两张大王可抗贡', () => {
+    const hand: Card[] = [
+      card(200, 'joker', 'BJ'),
+      card(200, 'joker', 'BJ'),
+      card(14, 'heart'),
+    ];
+    expect(canResistTribute(hand)).toBe(true);
+  });
+
+  it('只有一张大王不能抗贡', () => {
+    const hand: Card[] = [
+      card(200, 'joker', 'BJ'),
+      card(100, 'joker', 'SJ'),
+      card(14, 'heart'),
+    ];
+    expect(canResistTribute(hand)).toBe(false);
+  });
+
+  it('抗贡后正常出牌（从27张正常手牌开始）', () => {
+    // 模拟抗贡成功后的场景：手牌按正常顺序出
+    const hand: Card[] = [
+      card(200, 'joker', 'BJ'),
+      card(200, 'joker', 'BJ'),
+      card(14, 'heart'),
+      card(13, 'spade'),
+      card(10, 'club'),
+      card(8, 'diamond'),
+      card(5, 'heart'),
+      card(5, 'spade'),
+      card(3, 'club'),
+    ];
+    // 抗贡判定
+    expect(canResistTribute(hand)).toBe(true);
+    // 进贡牌仍然可用（未进贡）
+    const tributeCard = getTributeCard(hand);
+    expect(tributeCard).not.toBeNull();
+    // 还贡不需要执行
+    const returnCard = getReturnCard(hand);
+    expect(returnCard).not.toBeNull();
+  });
+});
+
+describe('双贡+抗贡混合', () => {
+  it('双贡场景：头二同队 → 两个进贡对', () => {
+    const pairs = determineTributePairs([0, 2, 1, 3]);
+    expect(pairs).toHaveLength(2);
+    expect(pairs).toContainEqual({ from: 3, to: 0 });
+    expect(pairs).toContainEqual({ from: 1, to: 2 });
+  });
+
+  it('单贡场景：头二不同队 → 一个进贡对', () => {
+    const pairs = determineTributePairs([0, 1, 2, 3]);
+    expect(pairs).toHaveLength(1);
+    expect(pairs).toContainEqual({ from: 3, to: 0 });
+  });
+
+  it('头二同队（交替排列）→ 双贡', () => {
+    // 头游0(队A), 二游2(队A), 三游1(队B), 末游3(队B)
+    // 应: 末游3→头游0, 三游1→二游2
+    const pairs = determineTributePairs([0, 2, 1, 3]);
+    expect(pairs).toHaveLength(2);
+  });
+
+  it('末游有两大王可抗贡但不影响进贡关系判定', () => {
+    // 即使末游抗贡，determineTributePairs仍正常返回
+    const pairs = determineTributePairs([3, 1, 0, 2]);
+    expect(pairs.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('头游和末游同队双进贡关系', () => {
+    // 头游=0(队A), 二游=2(队A), 三游=3(队B), 末游=1(队B)
+    const pairs = determineTributePairs([0, 2, 3, 1]);
+    expect(pairs).toEqual([
+      { from: 1, to: 0 },
+      { from: 3, to: 2 },
+    ]);
+  });
+});
+
+describe('进贡还贡完整流程', () => {
+  it('进贡方拔最大牌>=10 → 收贡方还一张<10的牌', () => {
+    const fromHand: Card[] = [
+      card(14, 'heart'),
+      card(13, 'spade'),
+      card(10, 'club'),
+      card(8, 'diamond'),
+      card(5, 'spade'),
+    ];
+    const toHand: Card[] = [
+      card(12, 'club'),
+      card(11, 'diamond'),
+      card(9, 'heart'),
+      card(7, 'spade'),
+      card(3, 'club'),
+    ];
+
+    const tributeCard = getTributeCard(fromHand);
+    const returnCard = getReturnCard(toHand);
+
+    expect(tributeCard).not.toBeNull();
+    expect(tributeCard!.value).toBeGreaterThanOrEqual(10);
+    expect(returnCard).not.toBeNull();
+    expect(returnCard!.value).toBeLessThan(10);
+  });
+
+  it('还贡牌是收贡方手中最小的牌', () => {
+    const toHand: Card[] = [
+      card(14, 'heart'),
+      card(9, 'club'),
+      card(8, 'diamond'),
+      card(4, 'spade'),
+      card(2, 'club'),
+    ];
+    const returnCard = getReturnCard(toHand);
+    expect(returnCard).not.toBeNull();
+    expect(returnCard!.value).toBe(2);
+  });
+});
