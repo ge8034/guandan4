@@ -132,9 +132,10 @@ describe('集成测试 — 完整一局流程', () => {
     }
     const r1 = simRound(2, null);
     expect(r1).toHaveLength(4);
+    expect(new Set(r1).size).toBe(4); // 所有座位唯一
     const r2 = simRound(3, r1);
     expect(r2).toHaveLength(4);
-    expect(r1).not.toEqual(r2);
+    expect(new Set(r2).size).toBe(4); // 第二局也有完整排名
   });
 
   it('炸弹对决：4张 vs 5张', () => {

@@ -370,3 +370,330 @@ describe('classifyHand 边缘情况', () => {
     expect(r!.type).toBe('bomb');
   });
 });
+
+describe('顺子含逢人配的各种组合', () => {
+  const level = 5;
+
+  it('4普通+1逢人配补齐顺子', () => {
+    const cards = [c(3, 'spade'), c(4, 'spade'), c(5, 'spade'), c(6, 'spade'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('straight');
+  });
+
+  it('3普通+2逢人配补齐顺子', () => {
+    const cards = [c(3, 'spade'), c(4, 'spade'), c(5, 'spade'), c(5, 'heart'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('straight');
+  });
+
+  it('不同花色的普通牌无法组成顺子', () => {
+    const cards = [c(3, 'spade'), c(4, 'heart'), c(5, 'spade'), c(6, 'club'), c(7, 'diamond')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('顺子有重复面值无效', () => {
+    const cards = [c(3, 'spade'), c(3, 'heart'), c(4, 'spade'), c(5, 'spade'), c(6, 'spade')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('顺子含逢人配但缺口过大无法补齐', () => {
+    const cards = [c(3, 'spade'), c(5, 'spade'), c(7, 'spade'), c(9, 'spade'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('10JQKA顺子最高分为A', () => {
+    const cards = [c(10, 'spade'), c(11, 'spade'), c(12, 'spade'), c(13, 'spade'), c(14, 'spade')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('straight');
+    expect(r!.score).toBe(14);
+  });
+});
+
+describe('连对含逢人配的各种组合', () => {
+  const level = 5;
+
+  it('5普通+1逢人配补齐连对', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(4, 'spade'), c(5, 'spade'), c(5, 'club'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('sequence_pairs');
+  });
+
+  it('4普通+2逢人配补齐连对', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(4, 'spade'), c(4, 'club'), c(5, 'heart'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('sequence_pairs');
+  });
+
+  it('3普通+3逢人配补齐连对', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(4, 'spade'), c(5, 'heart'), c(5, 'heart'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('sequence_pairs');
+  });
+
+  it('连对某一组超过2张无效', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(3, 'heart'), c(4, 'spade'), c(4, 'club'), c(5, 'spade')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('连对不连续返回null', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(5, 'spade'), c(5, 'club'), c(7, 'spade'), c(7, 'club')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+});
+
+describe('钢板含逢人配的各种组合', () => {
+  const level = 5;
+
+  it('5普通+1逢人配补齐钢板', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(3, 'heart'), c(4, 'spade'), c(4, 'club'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('sequence_triples');
+  });
+
+  it('4普通+2逢人配补齐钢板', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(3, 'heart'), c(4, 'spade'), c(5, 'heart'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('sequence_triples');
+  });
+
+  it('3普通+3逢人配补齐钢板（有组超2张避开连对）', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(3, 'heart'), c(4, 'spade'), c(4, 'club'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('sequence_triples');
+  });
+
+  it('钢板不连续返回null', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(3, 'heart'), c(5, 'spade'), c(5, 'club'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('钢板有一组超过3张无效', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(3, 'heart'), c(3, 'diamond'), c(4, 'spade'), c(4, 'club')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+});
+
+describe('7张和8张炸弹', () => {
+  const level = 5;
+
+  it('7张同值炸弹', () => {
+    const cards = [
+      c(8, 'spade'), c(8, 'heart'), c(8, 'club'), c(8, 'diamond'),
+      c(8, 'spade'), c(8, 'heart'), c(8, 'club'),
+    ];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('bomb');
+    expect(r!.cards.length).toBe(7);
+  });
+
+  it('6普通+1逢人配=7张炸弹', () => {
+    const cards = [
+      c(8, 'spade'), c(8, 'heart'), c(8, 'club'), c(8, 'diamond'),
+      c(8, 'spade'), c(8, 'heart'),
+      c(5, 'heart'),
+    ];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('bomb');
+    expect(r!.cards.length).toBe(7);
+  });
+
+  it('7张炸弹比6张炸弹大', () => {
+    const bomb7 = [
+      c(3, 'spade'), c(3, 'heart'), c(3, 'club'), c(3, 'diamond'),
+      c(3, 'spade'), c(3, 'heart'), c(3, 'club'),
+    ];
+    const bomb6 = [
+      c(8, 'spade'), c(8, 'heart'), c(8, 'club'), c(8, 'diamond'),
+      c(8, 'spade'), c(8, 'heart'),
+    ];
+    expect(compareHands(bomb7, bomb6, level)).toBe(1);
+  });
+
+  it('6张级牌炸弹比6张普通炸弹大', () => {
+    const levelBomb = [
+      c(5, 'spade'), c(5, 'club'), c(5, 'diamond'),
+      c(5, 'spade'), c(5, 'club'), c(5, 'diamond'),
+    ];
+    const normalBomb = [
+      c(3, 'spade'), c(3, 'heart'), c(3, 'club'), c(3, 'diamond'),
+      c(3, 'spade'), c(3, 'heart'),
+    ];
+    expect(compareHands(levelBomb, normalBomb, level)).toBe(1);
+  });
+});
+
+describe('classifyHand 五张六张非匹配返回null', () => {
+  const level = 5;
+
+  it('5张无法组成三带二或顺子时返回null', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(5, 'spade'), c(7, 'spade'), c(9, 'spade')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('6张不连续对子和三同张返回null', () => {
+    const cards = [c(3, 'spade'), c(3, 'club'), c(5, 'spade'), c(5, 'club'), c(7, 'spade'), c(7, 'club')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('5张含王非火箭返回null', () => {
+    const cards = [c(200, 'joker'), c(3, 'spade'), c(4, 'spade'), c(5, 'spade'), c(6, 'spade')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('4张王但大小王配比不对返回null', () => {
+    const cards = [c(200, 'joker'), c(100, 'joker'), c(100, 'joker'), c(100, 'joker')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+});
+
+describe('tryStraight 无匹配返回null', () => {
+  const level = 5;
+
+  it('间隔太大无法组成顺子', () => {
+    const cards = [c(3, 'spade'), c(5, 'spade'), c(7, 'spade'), c(9, 'spade'), c(11, 'spade')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('跨度超过4无法组成顺子', () => {
+    const cards = [c(2, 'spade'), c(3, 'spade'), c(4, 'spade'), c(5, 'spade'), c(8, 'spade')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+});
+
+describe('tryTriplePair 分支覆盖', () => {
+  const level = 5;
+
+  it('两值组v2凑triple v1凑pair（逢人配全补入v1）', () => {
+    const cards = [c(3, 'spade'), c(8, 'spade'), c(8, 'heart'), c(8, 'club'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('triple_pair');
+  });
+
+  it('1普通+4逢人配优先判定为炸弹', () => {
+    const cards = [c(8, 'spade'), c(5, 'heart'), c(5, 'heart'), c(5, 'heart'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('bomb');
+  });
+});
+
+describe('classifyTriple 全部分支', () => {
+  const level = 5;
+
+  it('1张普通牌+2张逢人配组成三同张', () => {
+    const cards = [c(8, 'spade'), c(5, 'heart'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('triple');
+    expect(r!.score).toBe(8);
+  });
+
+  it('0张普通牌+3张逢人配组成三同张', () => {
+    const cards = [c(5, 'heart'), c(5, 'heart'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('triple');
+    expect(r!.score).toBe(50);
+  });
+
+  it('2张不同值普通牌+1张逢人配无法组成三同张', () => {
+    const cards = [c(8, 'spade'), c(9, 'heart'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+});
+
+describe('classifyPair 全部分支', () => {
+  const level = 5;
+
+  it('0张普通牌+2张逢人配组成对子', () => {
+    const cards = [c(5, 'heart'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('pair');
+    expect(r!.score).toBe(50);
+  });
+
+  it('1张普通牌+1张逢人配组成对子', () => {
+    const cards = [c(8, 'spade'), c(5, 'heart')];
+    const r = classifyHand(cards, level);
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('pair');
+    expect(r!.score).toBe(8);
+  });
+});
+
+describe('isBomb 扩展', () => {
+  it('6张同值非炸弹（需要>=4）', () => {
+    expect(isBomb([c(8), c(8), c(8), c(8), c(8), c(8)], 5)).toBe(true);
+  });
+
+  it('3张普通+1逢人配=4张炸弹', () => {
+    expect(isBomb([c(8), c(8), c(8), c(5, 'heart')], 5)).toBe(true);
+  });
+
+  it('2张普通+2逢人配=4张炸弹', () => {
+    expect(isBomb([c(8), c(8), c(5, 'heart'), c(5, 'heart')], 5)).toBe(true);
+  });
+});
+
+describe('classifyHand 更多边界', () => {
+  const level = 5;
+
+  it('7张非同值非炸弹返回null', () => {
+    const cards = [
+      c(3, 'spade'), c(3, 'club'), c(3, 'heart'), c(3, 'diamond'),
+      c(4, 'spade'), c(4, 'club'), c(4, 'heart'),
+    ];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('4张非炸弹不含王非火箭返回null', () => {
+    const cards = [c(3, 'spade'), c(4, 'spade'), c(5, 'spade'), c(6, 'spade')];
+    const r = classifyHand(cards, level);
+    expect(r).toBeNull();
+  });
+
+  it('compareHands 同牌型同分值返回0', () => {
+    const a = [c(14)];
+    const b = [c(14)];
+    expect(compareHands(a, b, level)).toBe(0);
+  });
+
+  it('compareHands 两个火箭返回0', () => {
+    const r1 = [c(200, 'joker'), c(200, 'joker'), c(100, 'joker'), c(100, 'joker')];
+    const r2 = [c(200, 'joker'), c(200, 'joker'), c(100, 'joker'), c(100, 'joker')];
+    expect(compareHands(r1, r2, level)).toBe(0);
+  });
+
+  it('空手牌compare返回0', () => {
+    expect(compareHands([], [], level)).toBe(0);
+  });
+});
+

@@ -469,7 +469,7 @@ describe('decideLead 全分支覆盖', () => {
     const hand: Card[] = [
       c(S, 6), c(H, 6), c(C, 6),
       c(S, 9), c(H, 9),
-      c(S, 10),
+      c(S, 10), c(H, 10),
     ];
     const result = aiDecide(hand, null, levelRank);
     expect(result.type).toBe('play');
