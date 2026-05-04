@@ -168,7 +168,10 @@ export default function RoomPage() {
       }
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      aiLockRef.current = null; // 释放锁，允许下次 effect 重新调度
+    };
   }, [phase, currentSeat, turnNo, effectiveMySeat, handleRemotePlay, handleRemotePass]);
 
   const myHand = hands[effectiveMySeat] || [];

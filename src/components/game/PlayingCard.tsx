@@ -101,7 +101,7 @@ export function PlayingCard({
           ? 'border-accent -translate-y-1.5 scale-[1.02] shadow-lg shadow-accent/20 z-50'
           : 'border-card-border shadow-sm hover:shadow-md hover:-translate-y-0.5',
         !disabled && 'cursor-pointer active:scale-95',
-        disabled && 'cursor-not-allowed opacity-40',
+        disabled && 'cursor-not-allowed opacity-75',
       ].join(' ')}
     >
       {isJoker ? (

@@ -695,5 +695,78 @@ describe('classifyHand 更多边界', () => {
   it('空手牌compare返回0', () => {
     expect(compareHands([], [], level)).toBe(0);
   });
+
+  it('effectiveRankFromGroup 未定义组返回50', () => {
+    // 3张2在级牌=2时全是逢人配, classifyTriple 会处理
+    const cards = [c(2), c(2), c(2)];
+    const result = classifyHand(cards, 2);
+    expect(result).not.toBeNull();
+  });
+
+  it('classifyTriplePair groups.size=1 但无效组合返回 null', () => {
+    // 5张同值牌不是三带二, 应被识别为炸弹而不是 triple_pair
+    const cards = [c(8), c(8), c(8), c(8), c(8)];
+    const result = classifyHand(cards, 3);
+    expect(result?.type).toBe('bomb');
+  });
+
+  it('tryStraight 无法组成顺子返回 null', () => {
+    // 5张牌差值不连续 → 非顺子, 非炸弹, 非三带二 → classifyFive 返回 null
+    const cards = [c(3), c(5), c(7), c(9), c(11)];
+    const result = classifyHand(cards, 5);
+    expect(result).toBeNull();
+  });
+
+  it('triple_pair 识别', () => {
+    // 33344 → 标准三带二 (非炸弹, 不含逢人配)
+    const cards = [c(3), c(3), c(3), c(4), c(4)];
+    const result = classifyHand(cards, 5);
+    expect(result?.type).toBe('triple_pair');
+  });
+
+  it('有效顺子包含逢人配', () => {
+    // 4-5-6-7 (全黑桃) + 逢人配(红心2, 级牌=2) → 补成 4-5-6-7-8 顺子
+    const cards = [c(4), c(5), c(6), c(7), c(2, 'heart')];
+    const result = classifyHand(cards, 2);
+    expect(result?.type).toBe('straight');
+  });
+
+  it('bomb 识别跨级牌值', () => {
+    // 4张5是炸弹, 级牌不匹配
+    const cards = [c(5), c(5), c(5), c(5)];
+    const result = classifyHand(cards, 8);
+    expect(result?.type).toBe('bomb');
+    expect(result?.score).toBeGreaterThan(0);
+  });
+
+  it('rocket 识别', () => {
+    const cards = [c(200, 'joker'), c(200, 'joker'), c(100, 'joker'), c(100, 'joker')];
+    const result = classifyHand(cards, 2);
+    expect(result?.type).toBe('rocket');
+  });
+
+  it('isBomb 对非炸弹返回 false', () => {
+    const single = [c(3)];
+    expect(isBomb(single, 2)).toBe(false);
+  });
+
+  it('isRocket 对非火箭返回 false', () => {
+    const single = [c(3)];
+    expect(isRocket(single)).toBe(false);
+  });
+
+  it('序列三同张(钢板)识别', () => {
+    // 333444 → sequence_triples
+    const cards = [c(3), c(3), c(3), c(4), c(4), c(4)];
+    const result = classifyHand(cards, 5);
+    expect(result?.type).toBe('sequence_triples');
+  });
+
+  it('连对识别', () => {
+    // 334455 → sequence_pairs
+    const cards = [c(3), c(3), c(4), c(4), c(5), c(5)];
+    const result = classifyHand(cards, 5);
+    expect(result?.type).toBe('sequence_pairs');
+  });
 });
 

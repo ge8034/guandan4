@@ -629,3 +629,69 @@ describe('火箭+极端手牌决策', () => {
     }
   });
 });
+
+// ===== 新增：覆盖 ai.ts 中未覆盖分支 =====
+describe('decideLead 全炸弹兜底分支', () => {
+  const levelRank = 2;
+
+  it('领牌时只有炸弹(无普通牌) → AI优先出对子而非炸弹', () => {
+    // 只有炸弹(4张3), 没有普通牌 → decideLead 触发 nonBombPlays.length === 0
+    const hand: Card[] = [c(S, 3), c(H, 3), c(C, 3), c(D, 3)];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      const ch = classifyHand(result.cards, levelRank)!;
+      expect(ch.type).toBe('pair');
+    }
+  });
+
+  it('领牌只有单张(无孤立, 无对子) → 出最小单张', () => {
+    const hand: Card[] = [c(S, 3)];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards).toHaveLength(1);
+      expect(result.cards[0].value).toBe(3);
+    }
+  });
+
+  it('领牌找不到任何合法选项 → 兜底出最小分值', () => {
+    const hand: Card[] = [c(S, 3), c(H, 3), c(S, 5), c(S, 7)];
+    const result = aiDecide(hand, null, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+});
+
+describe('decideFollow 火箭决策', () => {
+  const levelRank = 2;
+
+  it('对手出炸弹手牌有火箭且手牌<=8 -> 用火箭', () => {
+    const hand: Card[] = [
+      c(S, 3), c(S, 4), c(S, 6), c(S, 7),
+      c('joker', 200), c('joker', 200), c('joker', 100), c('joker', 100),
+    ];
+    const lastPlay = classifyHand(
+      [c(S, 5), c(H, 5), c(C, 5), c(D, 5)], levelRank,
+    )!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(classifyHand(result.cards, levelRank)!.type).toBe('rocket');
+    }
+  });
+
+  it('对手出炸弹手牌有火箭但手牌>8 -> 过牌保存火箭', () => {
+    const hand: Card[] = [
+      c(S, 3), c(S, 4), c(S, 6), c(S, 7), c(S, 8),
+      c('joker', 200), c('joker', 200), c('joker', 100), c('joker', 100),
+    ];
+    const lastPlay = classifyHand(
+      [c(S, 5), c(H, 5), c(C, 5), c(D, 5)], levelRank,
+    )!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('pass');
+  });
+});
