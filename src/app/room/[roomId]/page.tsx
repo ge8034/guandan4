@@ -138,23 +138,26 @@ export default function RoomPage() {
     prevPhaseRef.current = phase;
   }, [phase, roundNumber]);
 
-  // AI 自动出牌
-  const aiLockRef = useRef<string | null>(null);
+  // AI 自动出牌 — 使用 setInterval 轮询，避免 setTimeout 锁问题
+  const lastAiActionRef = useRef<string>('');
 
   useEffect(() => {
     if (phase !== 'playing') return;
-    if (currentSeat === effectiveMySeat) return;
 
-    const lockKey = `${turnNo}_${currentSeat}`;
-    if (aiLockRef.current === lockKey) return;
-    aiLockRef.current = lockKey;
-
-    const timer = setTimeout(() => {
+    const interval = setInterval(() => {
       const state = useGameStore.getState();
       if (state.phase !== 'playing') return;
-      if (state.currentSeat !== currentSeat) return;
 
-      const aiHand = [...state.hands[currentSeat]];
+      const seat = state.currentSeat;
+      if (seat === effectiveMySeat) return; // 人类回合，跳过
+
+      const actionKey = `${state.turnNo}_${seat}`;
+      if (lastAiActionRef.current === actionKey) return; // 已处理过
+      lastAiActionRef.current = actionKey;
+
+      const aiHand = [...state.hands[seat]];
+      if (aiHand.length === 0) return;
+
       const lastPlayClassified = state.lastPlay
         ? classifyHand(state.lastPlay.cards, state.levelRank)
         : null;
@@ -162,17 +165,14 @@ export default function RoomPage() {
       const decision = aiDecide(aiHand, lastPlayClassified, state.levelRank);
 
       if (decision.type === 'play') {
-        handleRemotePlay(currentSeat, decision.cards);
+        handleRemotePlay(seat, decision.cards);
       } else {
-        handleRemotePass(currentSeat);
+        handleRemotePass(seat);
       }
-    }, 300);
+    }, 400);
 
-    return () => {
-      clearTimeout(timer);
-      aiLockRef.current = null; // 释放锁，允许下次 effect 重新调度
-    };
-  }, [phase, currentSeat, turnNo, effectiveMySeat, handleRemotePlay, handleRemotePass]);
+    return () => clearInterval(interval);
+  }, [phase, effectiveMySeat, handleRemotePlay, handleRemotePass]);
 
   const myHand = hands[effectiveMySeat] || [];
 
