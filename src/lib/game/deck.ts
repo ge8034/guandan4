@@ -25,15 +25,6 @@ const NUMBER_RANKS: RankDef[] = [
   { rank: 'A', value: 14 },
 ];
 
-/** 花色排序权重（spade > heart > club > diamond > joker） */
-const SUIT_ORDER: Record<Suit, number> = {
-  spade: 4,
-  heart: 3,
-  club: 2,
-  diamond: 1,
-  joker: 0,
-};
-
 /**
  * 生成一副标准 54 张牌（4花色×13点数 + 小王 + 大王）。
  */
@@ -72,15 +63,10 @@ export function shuffle(deck: Card[]): Card[] {
 }
 
 /**
- * 手牌排序：按花色优先级（spade > heart > club > diamond > joker），
- * 同花色内按点数降序。
+ * 手牌排序：按点数降序（大王 200 > 小王 100 > A 14 > ... > 2）。
  */
 export function sortHands(cards: Card[]): Card[] {
-  return [...cards].sort((a, b) => {
-    const suitDiff = SUIT_ORDER[b.suit] - SUIT_ORDER[a.suit];
-    if (suitDiff !== 0) return suitDiff;
-    return b.value - a.value;
-  });
+  return [...cards].sort((a, b) => b.value - a.value);
 }
 
 /**

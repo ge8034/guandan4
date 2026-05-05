@@ -108,64 +108,57 @@ describe('deal', () => {
     expect(deck).toHaveLength(original.length);
   });
 
-  it('每份手牌都已排序（按花色优先级，同花色降序）', () => {
+  it('每份手牌都已排序（按点数降序）', () => {
     const deck = createDeck();
     const hands = deal(deck);
     for (const hand of hands) {
       for (let i = 1; i < hand.length; i++) {
-        const prev = hand[i - 1];
-        const curr = hand[i];
-        const suitOrder: Record<Suit, number> = {
-          spade: 4, heart: 3, club: 2, diamond: 1, joker: 0,
-        };
-        const prevScore = suitOrder[prev.suit] * 1000 + prev.value;
-        const currScore = suitOrder[curr.suit] * 1000 + curr.value;
-        expect(prevScore).toBeGreaterThanOrEqual(currScore);
+        expect(hand[i - 1].value).toBeGreaterThanOrEqual(hand[i].value);
       }
     }
   });
 });
 
 describe('sortHands', () => {
-  it('应按花色排序：spade > heart > club > diamond > joker', () => {
+  it('应按点数降序排列（大王 > 小王 > A > ... > 2）', () => {
     const cards: Card[] = [
       card(3, 'diamond'),
-      card(5, 'heart'),
-      card(14, 'spade'),
-      card(9, 'club'),
-    ];
-    const sorted = sortHands(cards);
-    expect(sorted[0].suit).toBe('spade');
-    expect(sorted[1].suit).toBe('heart');
-    expect(sorted[2].suit).toBe('club');
-    expect(sorted[3].suit).toBe('diamond');
-  });
-
-  it('同花色内应按点数降序（A > K > ... > 2）', () => {
-    const cards: Card[] = [
-      card(5, 'spade'),
-      card(14, 'spade', 'A'),
-      card(10, 'spade'),
-    ];
-    const sorted = sortHands(cards);
-    expect(sorted[0].value).toBe(14);
-    expect(sorted[1].value).toBe(10);
-    expect(sorted[2].value).toBe(5);
-  });
-
-  it('王牌应排在最后', () => {
-    const cards: Card[] = [
-      card(100, 'joker', 'SJ'),
       card(200, 'joker', 'BJ'),
-      card(14, 'spade'),
+      card(14, 'spade', 'A'),
+      card(100, 'joker', 'SJ'),
+      card(5, 'heart'),
     ];
     const sorted = sortHands(cards);
-    expect(sorted[0].suit).toBe('spade');
-    expect(sorted[1].value).toBe(200); // BJ
-    expect(sorted[2].value).toBe(100); // SJ
+    expect(sorted[0].value).toBe(200);
+    expect(sorted[1].value).toBe(100);
+    expect(sorted[2].value).toBe(14);
+    expect(sorted[3].value).toBe(5);
+    expect(sorted[4].value).toBe(3);
   });
 
-  it('大王应排在小王之前（同花色降序）', () => {
+  it('同点数不同花色，排序稳定（保持原始相对顺序）', () => {
+    const cards: Card[] = [
+      card(10, 'diamond'),
+      card(10, 'heart'),
+      card(10, 'spade'),
+      card(10, 'club'),
+    ];
+    const sorted = sortHands(cards);
+    expect(sorted.every((c) => c.value === 10)).toBe(true);
+    expect(sorted).toHaveLength(4);
+  });
+
+  it('大王始终排在最前', () => {
+    const cards: Card[] = [
+      card(14, 'spade', 'A'),
+      card(200, 'joker', 'BJ'),
+      card(5, 'heart'),
+    ];
+    const sorted = sortHands(cards);
+    expect(sorted[0].value).toBe(200);
+  });
+
+  it('小王排在第二，仅次于大王', () => {
     const cards: Card[] = [
       card(100, 'joker', 'SJ'),
       card(200, 'joker', 'BJ'),

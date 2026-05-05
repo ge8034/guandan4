@@ -26,18 +26,10 @@ describe('集成测试 — 完整一局流程', () => {
     expect(hands).toHaveLength(4);
     hands.forEach((h) => expect(h).toHaveLength(27));
 
-    // 验证排序
+    // 验证排序（按点数降序）
     for (const hand of hands) {
       for (let i = 1; i < hand.length; i++) {
-        const prev = hand[i - 1];
-        const curr = hand[i];
-        // 花色顺序或同花色点数降序
-        const suitOrder = { spade: 4, heart: 3, club: 2, diamond: 1, joker: 0 };
-        const prevSuit = suitOrder[prev.suit] || 0;
-        const currSuit = suitOrder[curr.suit] || 0;
-        expect(
-          prevSuit > currSuit || (prevSuit === currSuit && prev.value >= curr.value)
-        ).toBe(true);
+        expect(hand[i - 1].value).toBeGreaterThanOrEqual(hand[i].value);
       }
     }
 
