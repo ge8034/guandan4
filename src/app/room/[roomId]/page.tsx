@@ -162,7 +162,10 @@ export default function RoomPage() {
         ? classifyHand(state.lastPlay.cards, state.levelRank)
         : null;
 
-      const decision = aiDecide(aiHand, lastPlayClassified, state.levelRank);
+      const decision = aiDecide(aiHand, lastPlayClassified, state.levelRank, {
+        mySeat: seat,
+        opponentHandSizes: state.hands.map((h) => h.length),
+      });
 
       if (decision.type === 'play') {
         handleRemotePlay(seat, decision.cards);
