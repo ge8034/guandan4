@@ -696,3 +696,155 @@ describe('decideFollow 火箭决策', () => {
     expect(result.type).toBe('pass');
   });
 });
+
+describe('decideFollow 困难模式 — 拦截判断', () => {
+  const levelRank = 2;
+
+  it('对手剩 1 张 → 非炸弹管不上 → 出炸弹拦截', () => {
+    const hand: Card[] = [
+      c(S, 5), c(H, 5), c(C, 5), c(D, 5),
+      c(S, 3), c(S, 4), c(S, 6), c(S, 7),
+      c(S, 8),
+    ];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank, {
+      mySeat: 0,
+      opponentHandSizes: [9, 1, 5, 5],
+    });
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards.length).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it('对手剩 2 张 → 非炸弹管不上 → 出炸弹拦截', () => {
+    const hand: Card[] = [
+      c(S, 5), c(H, 5), c(C, 5), c(D, 5),
+      c(S, 3), c(S, 4),
+    ];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank, {
+      mySeat: 0,
+      opponentHandSizes: [6, 2, 3, 3],
+    });
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards.length).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it('对手剩 2 张但非炸弹能管上 → 走规则 1 不出炸弹', () => {
+    const hand: Card[] = [
+      c(S, 5), c(H, 5), c(C, 5), c(D, 5),
+      c(S, 14),
+    ];
+    const lastPlay = classifyHand([c(S, 3)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank, {
+      mySeat: 0,
+      opponentHandSizes: [6, 2, 3, 3],
+    });
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards.length).toBeLessThan(4);
+    }
+  });
+
+  it('排除自己不算对手 → mySeat=2 时 seat 3 剩 2 张可触发', () => {
+    const hand: Card[] = [
+      c(S, 5), c(H, 5), c(C, 5), c(D, 5),
+      c(S, 3), c(S, 4),
+    ];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank, {
+      mySeat: 2,
+      opponentHandSizes: [5, 5, 6, 2],
+    });
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards.length).toBeGreaterThanOrEqual(4);
+    }
+  });
+});
+
+describe('decideFollow 困难模式 — 不可超越炸弹', () => {
+  const levelRank = 2;
+
+  it('手牌 9 张有火箭 groupsCount>2 → 非炸弹管不上 → 出火箭', () => {
+    const hand: Card[] = [
+      c(S, 3), c(H, 3),
+      c(S, 5), c(H, 5),
+      c(S, 7), c('joker', 200), c('joker', 200),
+      c('joker', 100), c('joker', 100),
+    ];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank, {
+      mySeat: 0,
+      opponentHandSizes: [9, 5, 3, 4],
+    });
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards.length).toBe(4);
+    }
+  });
+
+  it('手牌 10 张有 7 张炸弹 → 出炸弹', () => {
+    const hand: Card[] = [
+      c(S, 3), c(H, 3), c(C, 3), c(D, 3),
+      c(S, 3), c(H, 3), c(C, 3),
+      c(S, 5), c(S, 6), c(S, 8),
+    ];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank, {
+      mySeat: 0,
+      opponentHandSizes: [10, 5, 3, 4],
+    });
+    expect(result.type).toBe('play');
+    if (result.type === 'play') {
+      expect(result.cards.length).toBeGreaterThanOrEqual(7);
+    }
+  });
+
+  it('手牌 11 张有火箭 → 超过阈值不触发 → 过牌', () => {
+    const hand: Card[] = [
+      c(S, 3), c(H, 3),
+      c(S, 4), c(H, 4),
+      c(S, 5), c(H, 5),
+      c(S, 6), c('joker', 200), c('joker', 200),
+      c('joker', 100), c('joker', 100),
+    ];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank, {
+      mySeat: 0,
+      opponentHandSizes: [11, 5, 3, 4],
+    });
+    expect(result.type).toBe('pass');
+  });
+
+  it('手牌 8 张只有 4 张炸弹无火箭 → 不满足不可超越条件 → 过牌', () => {
+    const hand: Card[] = [
+      c(S, 5), c(H, 5), c(C, 5), c(D, 5),
+      c(S, 3), c(S, 4), c(S, 6), c(S, 7),
+    ];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank, {
+      mySeat: 0,
+      opponentHandSizes: [8, 5, 5, 5],
+    });
+    expect(result.type).toBe('pass');
+  });
+});
+
+describe('decideFollow context 可选兼容', () => {
+  const levelRank = 2;
+
+  it('context 为 undefined → 不触发新规则，行为与原来一致', () => {
+    const hand: Card[] = [
+      c(S, 5), c(H, 5), c(C, 5), c(D, 5),
+      c(S, 3), c(S, 4), c(S, 6), c(S, 7),
+      c(S, 8),
+    ];
+    const lastPlay = classifyHand([c(S, 14)], levelRank)!;
+    const result = aiDecide(hand, lastPlay, levelRank);
+    expect(result.type).toBe('pass');
+  });
+});

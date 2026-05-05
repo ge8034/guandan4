@@ -286,9 +286,17 @@ function decideFollow(
     (p) => p.classified.type === 'bomb' || p.classified.type === 'rocket',
   );
 
+  // 有火箭时不要用王当单张（保留王的完整性）
+  const rocketPlay = bombPlays.find((p) => p.classified.type === 'rocket');
+  const effectiveNonBomb = rocketPlay
+    ? nonBombPlays.filter(
+        (p) => !p.cards.some((c) => c.suit === 'joker'),
+      )
+    : nonBombPlays;
+
   // 能用非炸弹管上 → 选分值最低的（刚好管上）
-  if (nonBombPlays.length > 0) {
-    const minScore = nonBombPlays.reduce((min, p) =>
+  if (effectiveNonBomb.length > 0) {
+    const minScore = effectiveNonBomb.reduce((min, p) =>
       p.classified.score < min.classified.score ? p : min,
     );
     return { type: 'play', cards: minScore.cards };
@@ -322,12 +330,12 @@ function decideFollow(
 
   // e) 我方炸弹不可超越（火箭或 7+ 张炸弹）且手牌 ≤ 10 → 降低门槛出手
   if (hand.length <= 10) {
-    const hasUnbeatableBomb = bombPlays.some(
+    const unbeatableBomb = bombPlays.find(
       (p) =>
         p.classified.type === 'rocket' ||
         (p.classified.type === 'bomb' && p.cards.length >= 7),
     );
-    if (hasUnbeatableBomb) return { type: 'play', cards: minBomb.cards };
+    if (unbeatableBomb) return { type: 'play', cards: unbeatableBomb.cards };
   }
 
   // c) 手牌 ≤ 2 组牌型 → 炸弹加速清牌
