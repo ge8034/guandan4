@@ -11,6 +11,12 @@ type AIDecision =
   | { type: 'play'; cards: Card[] }
   | { type: 'pass' };
 
+/** AI 决策上下文（困难模式附加信息） */
+export interface AIContext {
+  mySeat: number;
+  opponentHandSizes: number[];
+}
+
 /** 从手牌枚举所有合法出牌选项 */
 export function getValidPlays(
   hand: Card[],
@@ -130,6 +136,7 @@ export function aiDecide(
   hand: Card[],
   lastPlay: ClassifiedHand | null,
   levelRank: number,
+  context?: AIContext,
 ): AIDecision {
   if (hand.length === 0) return { type: 'pass' };
 
@@ -139,7 +146,7 @@ export function aiDecide(
   if (lastPlay === null) {
     return decideLead(hand, validPlays, analysis);
   }
-  return decideFollow(hand, validPlays, analysis, lastPlay);
+  return decideFollow(hand, validPlays, analysis, lastPlay, context);
 }
 
 // ---- 手牌结构分析 ----
@@ -270,6 +277,7 @@ function decideFollow(
   validPlays: PlayOption[],
   analysis: HandAnalysis,
   lastPlay: ClassifiedHand,
+  context?: AIContext,
 ): AIDecision {
   const nonBombPlays = validPlays.filter(
     (p) => p.classified.type !== 'bomb' && p.classified.type !== 'rocket',
