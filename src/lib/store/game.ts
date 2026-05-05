@@ -170,6 +170,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let next: number;
     if (newRound) {
       next = leader;
+      let loopCount = 0;
+      while (state.hands[next].length === 0 && loopCount < 4) {
+        next = nextSeat(next);
+        loopCount++;
+      }
     } else {
       next = nextSeat(seatNo);
       let loopCount = 0;
@@ -253,6 +258,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let next: number;
     if (newRound) {
       next = leader;
+      let loopCount = 0;
+      while (state.hands[next].length === 0 && loopCount < 4) {
+        next = nextSeat(next);
+        loopCount++;
+      }
     } else {
       next = nextSeat(seatNo);
       let loopCount = 0;

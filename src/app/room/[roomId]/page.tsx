@@ -161,8 +161,9 @@ export default function RoomPage() {
       if (lastAiActionRef.current === actionKey) return; // 已处理过
 
       const aiHand = [...state.hands[seat]];
-      if (aiHand.length === 0) return;
       const handLenBefore = aiHand.length;
+      // 空手牌让流程继续：aiDecide 内部返回 pass，
+      // handleRemotePass 经 skip-empty 修复后跳到下一位
 
       const lastPlayClassified = state.lastPlay
         ? classifyHand(state.lastPlay.cards, state.levelRank)
