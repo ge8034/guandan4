@@ -8,13 +8,27 @@ interface TableAreaProps {
     cards?: CardData[];
   }[];
   currentTurnSeat: number;
+  effectiveMySeat: number;
 }
 
-const seatLabels = ['上家', '对家', '下家', '你'];
-
-export function TableArea({ recentTurns, currentTurnSeat }: TableAreaProps) {
+export function TableArea({ recentTurns, currentTurnSeat, effectiveMySeat }: TableAreaProps) {
   const latestTurn = recentTurns[0];
   const currentTurnNo = latestTurn?.turnNo || 0;
+
+  // 相对座位：出牌顺序逆时针 0→3→2→1→0
+  const myS = effectiveMySeat;
+  const shangjiaS = (myS + 1) % 4;
+  const duijiaS = (myS + 2) % 4;
+  const xiajiaS = (myS + 3) % 4;
+
+  const seatLabelMap: Record<number, string> = {
+    [shangjiaS]: '上家',
+    [duijiaS]: '对家',
+    [xiajiaS]: '下家',
+    [myS]: '你',
+  };
+
+  const label = seatLabelMap[currentTurnSeat] || '--';
 
   return (
     <div className="flex items-center justify-center p-3 sm:p-6">
@@ -22,8 +36,8 @@ export function TableArea({ recentTurns, currentTurnSeat }: TableAreaProps) {
         {/* 对家出牌 */}
         <TableTurn
           label="对家"
-          turn={recentTurns.find((t) => t.seatNo === 1)}
-          isCurrent={currentTurnSeat === 1}
+          turn={recentTurns.find((t) => t.seatNo === duijiaS)}
+          isCurrent={currentTurnSeat === duijiaS}
         />
 
         {/* 中间行：左 + 中 + 右 */}
@@ -31,8 +45,8 @@ export function TableArea({ recentTurns, currentTurnSeat }: TableAreaProps) {
           {/* 上家出牌 */}
           <TableTurn
             label="上家"
-            turn={recentTurns.find((t) => t.seatNo === 0)}
-            isCurrent={currentTurnSeat === 0}
+            turn={recentTurns.find((t) => t.seatNo === shangjiaS)}
+            isCurrent={currentTurnSeat === shangjiaS}
           />
 
           {/* 中央：当前回合指示 — 玻璃态 */}
@@ -43,7 +57,7 @@ export function TableArea({ recentTurns, currentTurnSeat }: TableAreaProps) {
                 <span className="breathe-dot" />
               )}
               <span className="text-sm sm:text-base font-semibold text-white">
-                {seatLabels[currentTurnSeat] || '--'} 出牌
+                {label} 出牌
               </span>
             </div>
           </div>
@@ -51,16 +65,16 @@ export function TableArea({ recentTurns, currentTurnSeat }: TableAreaProps) {
           {/* 下家出牌 */}
           <TableTurn
             label="下家"
-            turn={recentTurns.find((t) => t.seatNo === 2)}
-            isCurrent={currentTurnSeat === 2}
+            turn={recentTurns.find((t) => t.seatNo === xiajiaS)}
+            isCurrent={currentTurnSeat === xiajiaS}
           />
         </div>
 
         {/* 你的出牌 */}
         <TableTurn
           label="你"
-          turn={recentTurns.find((t) => t.seatNo === 3)}
-          isCurrent={currentTurnSeat === 3}
+          turn={recentTurns.find((t) => t.seatNo === myS)}
+          isCurrent={currentTurnSeat === myS}
         />
       </div>
     </div>

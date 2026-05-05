@@ -130,6 +130,12 @@ export default function RoomPage() {
 
   const effectiveMySeat = mySeat ?? 3;
 
+  // 相对座位：上家(前一位) → 对家(对面队友) → 下家(后一位)
+  // 出牌顺序逆时针：0→3→2→1→0，即 nextSeat = (seat+3)%4
+  const shangjiaSeat = (effectiveMySeat + 1) % 4; // nextSeat(nextSeat(nextSeat(me)))
+  const duijiaSeat = (effectiveMySeat + 2) % 4;   // 对面队友
+  const xiajiaSeat = (effectiveMySeat + 3) % 4;   // nextSeat(me)
+
   // 发牌动画：检测 idle → playing 且为第一局
   useEffect(() => {
     if (prevPhaseRef.current === 'idle' && phase === 'playing' && roundNumber === 1) {
@@ -310,11 +316,11 @@ export default function RoomPage() {
               onComplete={() => setDealAnimation(false)}
             />
 
-            {/* 上方：对家 (seat 1) */}
+            {/* 上方：对家 */}
             <div className="flex flex-col items-center pt-1">
               <div className="overflow-x-auto max-w-full hidden sm:block" style={handScaleStyle}>
                 <div className="flex gap-0 min-w-max justify-center px-1">
-                  {hands[1]?.map((card, i) => (
+                  {hands[duijiaSeat]?.map((card, i) => (
                     <div key={i} className="shrink-0 rotate-180"
                       style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: i }}>
                       <PlayingCard card={card} size="md" />
@@ -322,8 +328,8 @@ export default function RoomPage() {
                   ))}
                 </div>
               </div>
-              <PlayerSeat name={playerNames[1]} cardCount={hands[1]?.length || 0}
-                isOnline={true} isCurrentTurn={currentSeat === 1} isMe={false} />
+              <PlayerSeat name={playerNames[duijiaSeat]} cardCount={hands[duijiaSeat]?.length || 0}
+                isOnline={true} isCurrentTurn={currentSeat === duijiaSeat} isMe={false} />
             </div>
 
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
@@ -331,7 +337,7 @@ export default function RoomPage() {
               {/* 左：上家 */}
               <div className="hidden sm:flex items-center self-stretch shrink-0" style={{ marginLeft: 'var(--player-offset-left)' }}>
                 <div className="flex gap-0 min-w-max my-auto" style={{ transform: 'rotate(90deg) scale(var(--hand-scale))', transformOrigin: 'center center' }}>
-                  {hands[0]?.map((card, i) => (
+                  {hands[shangjiaSeat]?.map((card, i) => (
                     <div key={i} className="shrink-0 -rotate-90"
                       style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: i }}>
                       <PlayingCard card={card} size="md" />
@@ -339,38 +345,38 @@ export default function RoomPage() {
                   ))}
                 </div>
                 <div className="flex flex-col items-center ml-0.5">
-                  <PlayerSeat name={playerNames[0]} cardCount={hands[0]?.length || 0}
-                    isOnline={true} isCurrentTurn={currentSeat === 0} isMe={false} />
+                  <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
+                    isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} />
                 </div>
               </div>
 
               {/* 移动端上家(简化为仅座位) */}
               <div className="sm:hidden flex items-center self-stretch shrink-0">
-                <PlayerSeat name={playerNames[0]} cardCount={hands[0]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === 0} isMe={false} />
+                <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
+                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} />
               </div>
 
               {/* 中：牌桌出牌区 */}
               <div className="flex-1 flex items-center justify-center min-h-[160px] sm:min-h-[200px]">
-                <TableArea recentTurns={recentTurns.slice(0, 2)} currentTurnSeat={currentSeat} />
+                <TableArea recentTurns={recentTurns.slice(0, 2)} currentTurnSeat={currentSeat} effectiveMySeat={effectiveMySeat} />
               </div>
 
               {/* 移动端下家(简化为仅座位) */}
               <div className="sm:hidden flex items-center self-stretch shrink-0">
-                <PlayerSeat name={playerNames[2]} cardCount={hands[2]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === 2} isMe={false} />
+                <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
+                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} />
               </div>
 
               {/* 右：下家 */}
               <div className="hidden sm:flex items-center self-stretch shrink-0" style={{ marginRight: 'var(--player-offset-right)' }}>
                 <div className="flex flex-col items-center mr-0.5">
-                  <PlayerSeat name={playerNames[2]} cardCount={hands[2]?.length || 0}
-                    isOnline={true} isCurrentTurn={currentSeat === 2} isMe={false} />
+                  <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
+                    isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} />
                 </div>
                 <div className="flex gap-0 min-w-max my-auto" style={{ transform: 'rotate(-90deg) scale(var(--hand-scale))', transformOrigin: 'center center' }}>
-                  {hands[2]?.map((card, i) => (
+                  {hands[xiajiaSeat]?.map((card, i) => (
                     <div key={i} className="shrink-0 rotate-90"
-                      style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: (hands[2]?.length || 0) - i }}>
+                      style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: (hands[xiajiaSeat]?.length || 0) - i }}>
                       <PlayingCard card={card} size="md" />
                     </div>
                   ))}
@@ -378,10 +384,10 @@ export default function RoomPage() {
               </div>
             </div>
 
-            {/* 下方：人类 (seat 3) */}
+            {/* 下方：人类 */}
             <div className="flex flex-col items-center pb-1">
-              <PlayerSeat name={playerNames[3]} cardCount={myHand.length}
-                isOnline={true} isCurrentTurn={currentSeat === 3} isMe={true} />
+              <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
+                isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} />
               <div className="w-full max-w-4xl px-0 hidden sm:block" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand}
                   selectedCardIds={selectedIndices}
