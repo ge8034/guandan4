@@ -683,9 +683,10 @@ describe('decideFollow 火箭决策', () => {
     }
   });
 
-  it('对手出炸弹手牌有火箭但手牌>8 -> 过牌保存火箭', () => {
+  it('对手出炸弹手牌有火箭但手牌>10 -> 过牌保存火箭', () => {
     const hand: Card[] = [
       c(S, 3), c(S, 4), c(S, 6), c(S, 7), c(S, 8),
+      c(S, 9), c(S, 10),
       c('joker', 200), c('joker', 200), c('joker', 100), c('joker', 100),
     ];
     const lastPlay = classifyHand(

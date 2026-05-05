@@ -320,6 +320,16 @@ function decideFollow(
     if (rocket) return { type: 'play', cards: rocket.cards };
   }
 
+  // e) 我方炸弹不可超越（火箭或 7+ 张炸弹）且手牌 ≤ 10 → 降低门槛出手
+  if (hand.length <= 10) {
+    const hasUnbeatableBomb = bombPlays.some(
+      (p) =>
+        p.classified.type === 'rocket' ||
+        (p.classified.type === 'bomb' && p.cards.length >= 7),
+    );
+    if (hasUnbeatableBomb) return { type: 'play', cards: minBomb.cards };
+  }
+
   // c) 手牌 ≤ 2 组牌型 → 炸弹加速清牌
   if (analysis.groupsCount <= 2) return { type: 'play', cards: minBomb.cards };
 
