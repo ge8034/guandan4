@@ -305,6 +305,15 @@ function decideFollow(
   // a) 手牌 ≤ 4 张 → 炸弹清场
   if (hand.length <= 4) return { type: 'play', cards: minBomb.cards };
 
+  // d) 对手即将获胜 → 拦截
+  // 条件：有对手手牌 <= 2 张（随时可能出完）
+  if (context) {
+    const hasCloseOpponent = context.opponentHandSizes.some(
+      (size, i) => i !== context.mySeat && size > 0 && size <= 2,
+    );
+    if (hasCloseOpponent) return { type: 'play', cards: minBomb.cards };
+  }
+
   // b) 手牌 ≤ 8 张且有火箭 → 火箭确保赢
   if (hand.length <= 8 && analysis.hasRocket) {
     const rocket = bombPlays.find((p) => p.classified.type === 'rocket');
