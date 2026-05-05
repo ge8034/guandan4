@@ -145,9 +145,19 @@ export default function RoomPage() {
     if (phase !== 'playing') return;
 
     let aiTickCount = 0;
+    let aiActCount = 0;
     const interval = setInterval(() => {
       aiTickCount++;
       const state = useGameStore.getState();
+
+      // 每次轮询都打印（前 30 次），排查轮询是否在运行
+      if (aiTickCount <= 30) {
+        console.log(
+          `[AI-poll#${aiTickCount}] phase=${state.phase} seat=${state.currentSeat} ` +
+          `hands=[${state.hands.map(h => h.length)}] turnNo=${state.turnNo} rankings=[${state.rankings}]`
+        );
+      }
+
       if (state.phase !== 'playing') return;
 
       const seat = state.currentSeat;
@@ -160,12 +170,12 @@ export default function RoomPage() {
       if (aiHand.length === 0) return;
       const handLenBefore = aiHand.length;
 
-      // 每 10 次 AI 行动打印状态快照
-      if (aiTickCount % 10 === 1) {
+      aiActCount++;
+      // 每次 AI 实际行动时打印
+      if (aiActCount <= 10) {
         console.log(
-          `[AI#${aiTickCount}] seat=${seat} turnNo=${state.turnNo} hand=${handLenBefore} ` +
-          `lp=${state.lastPlay?.type ?? 'null'} rankings=[${state.rankings}] ` +
-          `hands=[${state.hands.map(h => h.length)}]`
+          `[AI-act#${aiActCount}] seat=${seat} turnNo=${state.turnNo} hand=${handLenBefore} ` +
+          `lp=${state.lastPlay?.type ?? 'null'}`
         );
       }
 
