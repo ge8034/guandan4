@@ -153,7 +153,6 @@ export default function RoomPage() {
 
       const actionKey = `${state.turnNo}_${seat}`;
       if (lastAiActionRef.current === actionKey) return; // 已处理过
-      lastAiActionRef.current = actionKey;
 
       const aiHand = [...state.hands[seat]];
       if (aiHand.length === 0) return;
@@ -172,6 +171,8 @@ export default function RoomPage() {
       } else {
         handleRemotePass(seat);
       }
+      // 操作成功后上锁，避免 handleRemotePlay/Pass 静默失败导致锁泄漏
+      lastAiActionRef.current = actionKey;
     }, 400);
 
     return () => clearInterval(interval);
