@@ -156,10 +156,13 @@ export default function RoomPage() {
 
       const aiHand = [...state.hands[seat]];
       if (aiHand.length === 0) return;
+      const handLenBefore = aiHand.length;
 
       const lastPlayClassified = state.lastPlay
         ? classifyHand(state.lastPlay.cards, state.levelRank)
         : null;
+
+      const prevTurnNo = state.turnNo;
 
       const decision = aiDecide(aiHand, lastPlayClassified, state.levelRank, {
         mySeat: seat,
@@ -171,7 +174,18 @@ export default function RoomPage() {
       } else {
         handleRemotePass(seat);
       }
-      // 操作成功后上锁，避免 handleRemotePlay/Pass 静默失败导致锁泄漏
+
+      // 验证操作是否生效
+      const newState = useGameStore.getState();
+      if (newState.turnNo === prevTurnNo && newState.currentSeat === seat) {
+        // 操作未生效：turnNo 和 currentSeat 都没变
+        console.warn(
+          `[AI] 操作未生效 seat=${seat} turnNo=${prevTurnNo} decision=${decision.type} handSize=${handLenBefore}`,
+        );
+        return; // 不上锁，下次轮询重试
+      }
+
+      // 操作生效，上锁防止重复处理
       lastAiActionRef.current = actionKey;
     }, 400);
 
