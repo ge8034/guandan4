@@ -144,7 +144,9 @@ export default function RoomPage() {
   useEffect(() => {
     if (phase !== 'playing') return;
 
+    let aiTickCount = 0;
     const interval = setInterval(() => {
+      aiTickCount++;
       const state = useGameStore.getState();
       if (state.phase !== 'playing') return;
 
@@ -157,6 +159,15 @@ export default function RoomPage() {
       const aiHand = [...state.hands[seat]];
       if (aiHand.length === 0) return;
       const handLenBefore = aiHand.length;
+
+      // 每 10 次 AI 行动打印状态快照
+      if (aiTickCount % 10 === 1) {
+        console.log(
+          `[AI#${aiTickCount}] seat=${seat} turnNo=${state.turnNo} hand=${handLenBefore} ` +
+          `lp=${state.lastPlay?.type ?? 'null'} rankings=[${state.rankings}] ` +
+          `hands=[${state.hands.map(h => h.length)}]`
+        );
+      }
 
       const lastPlayClassified = state.lastPlay
         ? classifyHand(state.lastPlay.cards, state.levelRank)
