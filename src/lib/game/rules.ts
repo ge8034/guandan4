@@ -178,12 +178,7 @@ function tryStraight(
 ): ClassifiedHand | null {
   if (normals.length + wildCount !== 5) return null;
 
-  // 所有普通牌必须同花色
-  if (normals.length > 0) {
-    const suit = normals[0].suit;
-    if (!normals.every(c => c.suit === suit)) return null;
-  }
-  // 不能有重复面值
+  // 不能有重复面值（顺子不要求同花色）
   const values = [...new Set(normals.map(c => c.value))].sort((a, b) => a - b);
   if (values.length !== normals.length) return null;
 

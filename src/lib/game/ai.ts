@@ -69,25 +69,16 @@ export function getValidPlays(
     }
   }
 
-  // 顺子（5张同花色连续）
-  const bySuit = new Map<string, Card[]>();
-  for (const card of hand) {
-    if (card.suit === 'joker') continue;
-    const arr = bySuit.get(card.suit) || [];
-    arr.push(card);
-    bySuit.set(card.suit, arr);
-  }
-  for (const [, suitedCards] of bySuit) {
-    const suitValues = new Set(suitedCards.map((c) => c.value));
-    const suitVals = [...suitValues].sort((a, b) => a - b);
-    for (let start = 2; start <= 10; start++) {
-      const needed = [start, start + 1, start + 2, start + 3, start + 4];
-      if (needed.every((v) => suitValues.has(v))) {
-        const straightCards = needed.map((v) =>
-          suitedCards.find((c) => c.value === v)!
-        );
-        addOption(straightCards);
-      }
+  // 顺子（5张连续，不要求同花色）
+  const allNonJokers = hand.filter((c) => c.suit !== 'joker');
+  const allValues = new Set(allNonJokers.map((c) => c.value));
+  for (let start = 2; start <= 10; start++) {
+    const needed = [start, start + 1, start + 2, start + 3, start + 4];
+    if (needed.every((v) => allValues.has(v))) {
+      const straightCards = needed.map((v) =>
+        allNonJokers.find((c) => c.value === v)!
+      );
+      addOption(straightCards);
     }
   }
 

@@ -62,9 +62,9 @@ describe('getValidPlays', () => {
     expect(plays.some((p) => p.classified.type === 'triple_pair')).toBe(true);
   });
 
-  it('枚举顺子选项', () => {
+  it('枚举顺子选项（混花色也可）', () => {
     const hand: Card[] = [
-      c(S, 5), c(S, 6), c(S, 7), c(S, 8), c(S, 9), c(H, 3),
+      c(S, 5), c(H, 6), c(C, 7), c(D, 8), c(S, 9), c(H, 3),
     ];
     const plays = getValidPlays(hand, null, levelRank);
     expect(plays.some((p) => p.classified.type === 'straight')).toBe(true);

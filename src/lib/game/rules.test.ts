@@ -98,15 +98,23 @@ describe('classifyHand', () => {
     expect(result!.score).toBe(8);
   });
 
-  it('顺子（五张同花连续）', () => {
-    // 3♠ 4♠ 5♠ 6♠ 7♠
-    const result = classifyHand(
+  it('顺子（五张连续，不要求同花色）', () => {
+    // 3♠ 4♠ 5♠ 6♠ 7♠ — 同花色
+    const r1 = classifyHand(
       [c(3, 'spade'), c(4, 'spade'), c(5, 'spade'), c(6, 'spade'), c(7, 'spade')],
       5,
     );
-    expect(result).not.toBeNull();
-    expect(result!.type).toBe('straight');
-    expect(result!.score).toBe(7);
+    expect(r1).not.toBeNull();
+    expect(r1!.type).toBe('straight');
+    expect(r1!.score).toBe(7);
+
+    // 混花色：3♠ 4♥ 5♣ 6♦ 7♠ — 也应识别为顺子
+    const r2 = classifyHand(
+      [c(3, 'spade'), c(4, 'heart'), c(5, 'club'), c(6, 'diamond'), c(7, 'spade')],
+      5,
+    );
+    expect(r2).not.toBeNull();
+    expect(r2!.type).toBe('straight');
   });
 
   it('连对（三组连续对子）', () => {
@@ -388,10 +396,11 @@ describe('顺子含逢人配的各种组合', () => {
     expect(r!.type).toBe('straight');
   });
 
-  it('不同花色的普通牌无法组成顺子', () => {
+  it('混花色连续点数可组成顺子', () => {
     const cards = [c(3, 'spade'), c(4, 'heart'), c(5, 'spade'), c(6, 'club'), c(7, 'diamond')];
     const r = classifyHand(cards, level);
-    expect(r).toBeNull();
+    expect(r).not.toBeNull();
+    expect(r!.type).toBe('straight');
   });
 
   it('顺子有重复面值无效', () => {
