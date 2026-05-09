@@ -9,9 +9,10 @@ interface TableAreaProps {
   }[];
   currentTurnSeat: number;
   effectiveMySeat: number;
+  lastPlay: { seatNo: number; type: string; cards: CardData[] } | null;
 }
 
-export function TableArea({ recentTurns, currentTurnSeat, effectiveMySeat }: TableAreaProps) {
+export function TableArea({ recentTurns, currentTurnSeat, effectiveMySeat, lastPlay }: TableAreaProps) {
   const latestTurn = recentTurns[0];
   const currentTurnNo = latestTurn?.turnNo || 0;
 
@@ -57,7 +58,7 @@ export function TableArea({ recentTurns, currentTurnSeat, effectiveMySeat }: Tab
                 <span className="breathe-dot" />
               )}
               <span className="text-sm sm:text-base font-semibold text-white">
-                {label} 出牌
+                {label} {lastPlay ? '跟牌' : '领牌'}
               </span>
             </div>
           </div>

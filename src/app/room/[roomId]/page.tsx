@@ -69,7 +69,7 @@ export default function RoomPage() {
   const roomId = params.roomId as string;
 
   const {
-    phase, hands, currentSeat, turnNo, recentTurns,
+    phase, hands, currentSeat, turnNo, recentTurns, lastPlay,
     levelRank, rankings, roundNumber, tributeInfo, error,
     startGame, playCards, passTurn,
     handleRemotePlay, handleRemotePass,
@@ -338,7 +338,7 @@ export default function RoomPage() {
 
               {/* 中：牌桌出牌区 */}
               <div className="flex-1 flex items-center justify-center min-h-[160px] sm:min-h-[200px]">
-                <TableArea recentTurns={recentTurns.slice(0, 2)} currentTurnSeat={currentSeat} effectiveMySeat={effectiveMySeat} />
+                <TableArea recentTurns={recentTurns.slice(0, 2)} currentTurnSeat={currentSeat} effectiveMySeat={effectiveMySeat} lastPlay={lastPlay} />
               </div>
 
               {/* 移动端下家(简化为仅座位) */}
