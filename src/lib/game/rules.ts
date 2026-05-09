@@ -8,11 +8,8 @@ export function getCardScore(card: Card, levelRank: number): number {
   if (card.suit === 'joker') {
     return card.value; // 大王=200, 小王=100
   }
-  // 逢人配（红桃级牌）
-  if (card.suit === 'heart' && card.value === levelRank) {
-    return 60;
-  }
-  // 普通级牌
+  // 级牌（含逢人配红桃级牌）：逢人配在组合中可替代任意牌，
+  // 但作为单张打出时与其他级牌等值
   if (card.value === levelRank) {
     return 50;
   }

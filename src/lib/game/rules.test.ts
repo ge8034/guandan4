@@ -33,10 +33,10 @@ describe('getCardScore', () => {
     expect(getCardScore(c(100), 5)).toBe(100);
   });
 
-  it('红桃级牌（逢人配）returns 60', () => {
-    // level=5, 红桃5 → 逢人配
+  it('红桃级牌（逢人配）单张分值与普通级牌一致=50', () => {
+    // level=5, 红桃5 → 逢人配，单张时与其他级牌等值
     const wild = c(5, 'heart');
-    expect(getCardScore(wild, 5)).toBe(60);
+    expect(getCardScore(wild, 5)).toBe(50);
   });
 
   it('普通级牌 returns 50', () => {
