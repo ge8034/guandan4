@@ -4,6 +4,7 @@ import { createDeck, shuffle, deal, sortHands } from '@/lib/game/deck';
 import { classifyHand } from '@/lib/game/rules';
 import { validatePlay, canPass, nextSeat, resolveNewRound, calculateUpgrade, sameTeam } from '@/lib/game/turn';
 import { determineTributePairs, canResistTribute, getTributeCard, getReturnCard } from '@/lib/game/tribute';
+import { getCardMemory, resetCardMemory } from '@/lib/game/memory';
 
 interface TributeInfo {
   pairs: { from: number; to: number }[];
@@ -58,6 +59,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   error: null,
 
   startGame: () => {
+    resetCardMemory();
     const deck = shuffle(createDeck());
     const hands = deal(deck);
     set({
@@ -139,6 +141,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       turnNo: state.turnNo + 1,
       error: null,
     });
+
+    getCardMemory().record(cards);
 
     if (newRankings.length >= 3) {
       const remaining = [0, 1, 2, 3].find((s) => !newRankings.includes(s))!;
@@ -240,6 +244,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       error: null,
     });
 
+    getCardMemory().record(cards);
+
     if (newRankings.length >= 3) {
       const remaining = [0, 1, 2, 3].find((s) => !newRankings.includes(s))!;
       get().finishGame([...newRankings, remaining]);
@@ -315,6 +321,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   /** 开始下一局（保留级牌和局数，执行进贡） */
   startNextRound: () => {
     const state = get();
+    resetCardMemory();
     const deck = shuffle(createDeck());
     let hands = deal(deck);
 
@@ -379,6 +386,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   /** 完全重置（新游戏，级牌回到2） */
   resetGame: () => {
+    resetCardMemory();
     set({
       phase: 'idle',
       hands: [[], [], [], []],
