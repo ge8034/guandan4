@@ -29,6 +29,10 @@ export function TableArea({ recentTurns, currentTurnSeat, effectiveMySeat, lastP
     [myS]: '你',
   };
 
+  // 取各座位最近一次出牌记录（过牌不覆盖出牌展示）
+  const lastPlayOf = (seatNo: number) =>
+    recentTurns.find((t) => t.seatNo === seatNo && t.type === 'play');
+
   const label = seatLabelMap[currentTurnSeat] || '--';
 
   return (
@@ -37,7 +41,7 @@ export function TableArea({ recentTurns, currentTurnSeat, effectiveMySeat, lastP
         {/* 对家出牌 */}
         <TableTurn
           label="对家"
-          turn={recentTurns.find((t) => t.seatNo === duijiaS)}
+          turn={lastPlayOf(duijiaS)}
           isCurrent={currentTurnSeat === duijiaS}
         />
 
@@ -46,7 +50,7 @@ export function TableArea({ recentTurns, currentTurnSeat, effectiveMySeat, lastP
           {/* 上家出牌 */}
           <TableTurn
             label="上家"
-            turn={recentTurns.find((t) => t.seatNo === shangjiaS)}
+            turn={lastPlayOf(shangjiaS)}
             isCurrent={currentTurnSeat === shangjiaS}
           />
 
@@ -66,7 +70,7 @@ export function TableArea({ recentTurns, currentTurnSeat, effectiveMySeat, lastP
           {/* 下家出牌 */}
           <TableTurn
             label="下家"
-            turn={recentTurns.find((t) => t.seatNo === xiajiaS)}
+            turn={lastPlayOf(xiajiaS)}
             isCurrent={currentTurnSeat === xiajiaS}
           />
         </div>
@@ -74,7 +78,7 @@ export function TableArea({ recentTurns, currentTurnSeat, effectiveMySeat, lastP
         {/* 你的出牌 */}
         <TableTurn
           label="你"
-          turn={recentTurns.find((t) => t.seatNo === myS)}
+          turn={lastPlayOf(myS)}
           isCurrent={currentTurnSeat === myS}
         />
       </div>
