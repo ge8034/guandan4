@@ -174,6 +174,7 @@ export default function RoomPage() {
       const decision = aiDecide(aiHand, lastPlayClassified, state.levelRank, {
         mySeat: seat,
         opponentHandSizes: state.hands.map((h) => h.length),
+        lastPlaySeat: state.lastPlay?.seatNo,
       });
 
       if (decision.type === 'play') {

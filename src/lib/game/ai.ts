@@ -1,5 +1,7 @@
 import type { Card, ClassifiedHand } from './types';
 import { classifyHand, compareHands } from './rules';
+import { sameTeam } from './turn';
+import { getCardMemory } from './memory';
 
 interface PlayOption {
   type: 'play';
@@ -15,6 +17,8 @@ type AIDecision =
 export interface AIContext {
   mySeat: number;
   opponentHandSizes: number[];
+  /** 最后出牌者的座位号，用于判断是否同伴在领牌 */
+  lastPlaySeat?: number;
 }
 
 /** 从手牌枚举所有合法出牌选项 */
@@ -135,7 +139,7 @@ export function aiDecide(
   const analysis = analyzeHand(hand, levelRank);
 
   if (lastPlay === null) {
-    return decideLead(hand, validPlays, analysis);
+    return decideLead(hand, validPlays, analysis, context);
   }
   return decideFollow(hand, validPlays, analysis, lastPlay, context);
 }
@@ -203,6 +207,7 @@ function decideLead(
   hand: Card[],
   validPlays: PlayOption[],
   analysis: HandAnalysis,
+  context?: AIContext,
 ): AIDecision {
   const nonBombPlays = validPlays.filter(
     (p) => p.classified.type !== 'bomb' && p.classified.type !== 'rocket',
@@ -220,6 +225,24 @@ function decideLead(
   if (hand.length <= 5) {
     const oneShot = nonBombPlays.find((p) => p.cards.length === hand.length);
     if (oneShot) return { type: 'play', cards: oneShot.cards };
+  }
+
+  // 同伴配合：队友快赢时优先出单张（最灵活，方便队友接牌）
+  if (context) {
+    const teammateSeat = context.mySeat % 2 === 0 ? context.mySeat + 2 : context.mySeat - 2;
+    if (teammateSeat >= 0 && teammateSeat < 4) {
+      const teammateCards = context.opponentHandSizes[teammateSeat];
+      if (teammateCards > 0 && teammateCards <= 4) {
+        // 队友手牌 ≤ 4：出单张让队友可以过牌或跟牌
+        const singlePlays = nonBombPlays.filter((p) => p.classified.type === 'single');
+        if (singlePlays.length > 0) {
+          const minSingle = singlePlays.reduce((min, p) =>
+            p.classified.score < min.classified.score ? p : min,
+          );
+          return { type: 'play', cards: minSingle.cards };
+        }
+      }
+    }
   }
 
   // 出孤立牌（最小的单张）
@@ -285,8 +308,13 @@ function decideFollow(
       )
     : nonBombPlays;
 
-  // 能用非炸弹管上 → 选分值最低的（刚好管上）
+  // 能用非炸弹管上
   if (effectiveNonBomb.length > 0) {
+    // 同伴配合：如果领牌者是队友，不要压他的牌，让队友继续领
+    if (context?.lastPlaySeat != null && sameTeam(context.mySeat, context.lastPlaySeat)) {
+      return { type: 'pass' };
+    }
+    // 选分值最低的（刚好管上）
     const minScore = effectiveNonBomb.reduce((min, p) =>
       p.classified.score < min.classified.score ? p : min,
     );
