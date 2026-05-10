@@ -98,7 +98,7 @@ export function PlayingCard({
       className={[
         'relative flex shrink-0 select-none flex-col items-center justify-center',
         'rounded-md border-2 font-card',
-        isLevelCard ? 'bg-neutral-200' : 'bg-card-bg',
+        isLevelCard ? 'bg-neutral-300' : 'bg-card-bg',
         'transition-all duration-150 ease-out',
         sizeDimensions[size],
         selected
