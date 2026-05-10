@@ -150,6 +150,7 @@ export default function LobbyPage() {
         <div
           className="fixed z-50 rounded-lg border border-neutral-200 bg-white shadow-lg py-1 min-w-[120px]"
           style={{ left: contextMenu.x, top: contextMenu.y }}
+          onClick={(e) => e.stopPropagation()}
         >
           <button
             className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
