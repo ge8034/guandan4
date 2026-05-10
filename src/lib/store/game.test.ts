@@ -499,7 +499,8 @@ describe('GameStore', () => {
 
     useGameStore.getState().passTurn(0);
     const after = useGameStore.getState();
-    expect(after.currentSeat).toBe(0);
+    // leader=1(空)→对家=(1+2)%4=3(有牌)→next=3
+    expect(after.currentSeat).toBe(3);
     expect(after.passCount).toBe(0);
     expect(after.lastPlay).toBeNull();
     expect(after.turnNo).toBe(6);
@@ -524,7 +525,8 @@ describe('GameStore', () => {
 
     useGameStore.getState().handleRemotePass(0);
     const after = useGameStore.getState();
-    expect(after.currentSeat).toBe(0);
+    // leader=1(空)→对家=(1+2)%4=3(有牌)→next=3
+    expect(after.currentSeat).toBe(3);
     expect(after.passCount).toBe(0);
     expect(after.lastPlay).toBeNull();
     expect(after.turnNo).toBe(6);
@@ -549,7 +551,7 @@ describe('GameStore', () => {
 
     useGameStore.getState().passTurn(3);
     const after = useGameStore.getState();
-    // leader=1(空)→0(空)→3(有牌)→next=3
+    // leader=1(空)→对家=3(有牌)→next=3
     expect(after.currentSeat).toBe(3);
     expect(after.passCount).toBe(0);
     expect(after.lastPlay).toBeNull();

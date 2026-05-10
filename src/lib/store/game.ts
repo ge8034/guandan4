@@ -123,12 +123,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
       newRankings.push(seatNo);
     }
 
-    // 下一位出牌者（跳过已出完的）
-    let next = nextSeat(seatNo);
-    let loopCount = 0;
-    while (newHands[next].length === 0 && loopCount < 4) {
-      next = nextSeat(next);
-      loopCount++;
+    // 下一位出牌者：出完牌则传对家（队友），对家也空则逆时针继续
+    let next: number;
+    if (newHands[seatNo].length === 0) {
+      next = (seatNo + 2) % 4; // 对家（队友）优先
+      let loopCount = 0;
+      while (newHands[next].length === 0 && loopCount < 4) {
+        next = nextSeat(next);
+        loopCount++;
+      }
+    } else {
+      next = nextSeat(seatNo);
+      let loopCount = 0;
+      while (newHands[next].length === 0 && loopCount < 4) {
+        next = nextSeat(next);
+        loopCount++;
+      }
     }
 
     set({
@@ -171,13 +181,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { newRound, leader } = resolveNewRound(newPassCount, playSeat);
 
     // 计算下一位玩家
+    // 出完牌后出牌权由对家（队友）继承，队友也空则逆时针继续
     let next: number;
     if (newRound) {
       next = leader;
-      let loopCount = 0;
-      while (state.hands[next].length === 0 && loopCount < 4) {
-        next = nextSeat(next);
-        loopCount++;
+      if (state.hands[next].length === 0) {
+        next = (leader + 2) % 4; // 对家（队友）优先
+        let loopCount = 0;
+        while (state.hands[next].length === 0 && loopCount < 4) {
+          next = nextSeat(next);
+          loopCount++;
+        }
       }
     } else {
       next = nextSeat(seatNo);
@@ -226,11 +240,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
       newRankings.push(seatNo);
     }
 
-    let next = nextSeat(seatNo);
-    let loopCount = 0;
-    while (newHands[next].length === 0 && loopCount < 4) {
-      next = nextSeat(next);
-      loopCount++;
+    // 下一位出牌者：出完牌则传对家（队友），对家也空则逆时针继续
+    let next: number;
+    if (newHands[seatNo].length === 0) {
+      next = (seatNo + 2) % 4;
+      let loopCount = 0;
+      while (newHands[next].length === 0 && loopCount < 4) {
+        next = nextSeat(next);
+        loopCount++;
+      }
+    } else {
+      next = nextSeat(seatNo);
+      let loopCount = 0;
+      while (newHands[next].length === 0 && loopCount < 4) {
+        next = nextSeat(next);
+        loopCount++;
+      }
     }
 
     set({
@@ -264,10 +289,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let next: number;
     if (newRound) {
       next = leader;
-      let loopCount = 0;
-      while (state.hands[next].length === 0 && loopCount < 4) {
-        next = nextSeat(next);
-        loopCount++;
+      if (state.hands[next].length === 0) {
+        next = (leader + 2) % 4; // 对家（队友）优先
+        let loopCount = 0;
+        while (state.hands[next].length === 0 && loopCount < 4) {
+          next = nextSeat(next);
+          loopCount++;
+        }
       }
     } else {
       next = nextSeat(seatNo);
