@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import { PlayingCard, type CardData } from './PlayingCard';
 
 interface HandAreaProps {
@@ -38,23 +38,20 @@ export function HandArea({
   onDragSelect,
   onDeselectAll,
 }: HandAreaProps) {
-  const [dragging, setDragging] = useState(false);
+  const draggingRef = useRef(false);
   const dragSet = useRef<Set<number>>(new Set());
   const containerRef = useRef<HTMLDivElement>(null);
-  const dragStartX = useRef(0);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (disabled) return;
-    // 点击空白处解除所有选中
     const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
     const card = el?.closest?.('[data-hand-index]') as HTMLElement | null;
     if (!card) {
       onDeselectAll?.();
       return;
     }
-    setDragging(true);
+    draggingRef.current = true;
     dragSet.current = new Set();
-    dragStartX.current = e.clientX;
   }, [disabled, onDeselectAll]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
@@ -63,22 +60,21 @@ export function HandArea({
   }, [onDeselectAll]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!dragging) return;
-    // 使用 elementFromPoint 只选中鼠标下最前排的牌
+    if (!draggingRef.current) return;
     const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
     const card = el?.closest?.('[data-hand-index]') as HTMLElement | null;
     if (card) {
       dragSet.current.add(Number(card.getAttribute('data-hand-index')));
     }
-  }, [dragging]);
+  }, []);
 
   const handleMouseUp = useCallback(() => {
-    if (!dragging) return;
-    setDragging(false);
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
     if (dragSet.current.size > 0) {
       onDragSelect?.(Array.from(dragSet.current));
     }
-  }, [dragging, onDragSelect]);
+  }, [onDragSelect]);
   if (loading) {
     return (
       <div className="w-full overflow-x-auto">
