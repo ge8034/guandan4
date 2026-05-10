@@ -820,7 +820,7 @@ describe('decideFollow 困难模式 — 不可超越炸弹', () => {
     expect(result.type).toBe('pass');
   });
 
-  it('手牌 8 张只有 4 张炸弹无火箭 → 不满足不可超越条件 → 过牌', () => {
+  it('手牌 8 张仅1组炸弹+4单→残局≤3组→加速出炸弹', () => {
     const hand: Card[] = [
       c(S, 5), c(H, 5), c(C, 5), c(D, 5),
       c(S, 3), c(S, 4), c(S, 6), c(S, 7),
@@ -830,7 +830,7 @@ describe('decideFollow 困难模式 — 不可超越炸弹', () => {
       mySeat: 0,
       opponentHandSizes: [8, 5, 5, 5],
     });
-    expect(result.type).toBe('pass');
+    expect(result.type).toBe('play');
   });
 });
 

@@ -242,6 +242,16 @@ function decideLead(
           return { type: 'play', cards: minSingle.cards };
         }
       }
+      // 队友手牌 5-8：优先出对子（清牌效率更高，队友也更容易接）
+      if (teammateCards >= 5 && teammateCards <= 8) {
+        const pairPlays = nonBombPlays.filter((p) => p.classified.type === 'pair');
+        if (pairPlays.length > 0) {
+          const minPair = pairPlays.reduce((min, p) =>
+            p.classified.score < min.classified.score ? p : min,
+          );
+          return { type: 'play', cards: minPair.cards };
+        }
+      }
     }
   }
 
@@ -310,8 +320,17 @@ function decideFollow(
 
   // 能用非炸弹管上
   if (effectiveNonBomb.length > 0) {
-    // 同伴配合：如果领牌者是队友，不要压他的牌，让队友继续领
-    if (context?.lastPlaySeat != null && sameTeam(context.mySeat, context.lastPlaySeat)) {
+    const memory = getCardMemory();
+    // 记牌驱动：检查出的牌是否"真大"（剩余同类型牌中无更大的）
+    const topPlay = effectiveNonBomb.reduce((max, p) =>
+      p.classified.score > max.classified.score ? p : max,
+    );
+    const isTrulyBig =
+      lastPlay.type !== 'bomb' && lastPlay.type !== 'rocket' &&
+      memory.remainingCount(lastPlay.cards[0].value) <= 1; // 近似判断：上家出的牌值只剩1张
+
+    // 同伴配合：如果领牌者是队友且我出的不是"真大"牌，让队友继续领
+    if (!isTrulyBig && context?.lastPlaySeat != null && sameTeam(context.mySeat, context.lastPlaySeat)) {
       return { type: 'pass' };
     }
     // 选分值最低的（刚好管上）
@@ -327,13 +346,18 @@ function decideFollow(
   const minBomb = bombPlays.reduce((min, p) =>
     p.classified.score < min.classified.score ? p : min,
   );
-  const minBombScore = minBomb.classified.score;
+
+  // 残局清牌：手牌 ≤ 3 组 → 用炸弹加速
+  if (analysis.groupsCount <= 3 && hand.length <= 8) return { type: 'play', cards: minBomb.cards };
 
   // a) 手牌 ≤ 4 张 → 炸弹清场
   if (hand.length <= 4) return { type: 'play', cards: minBomb.cards };
 
+  // 记牌驱动炸弹风险：对手可能没炸弹时降低出手门槛
+  const memory = getCardMemory();
+  const opponentBombPossible = memory.bombPossible();
+
   // d) 对手即将获胜 → 拦截
-  // 条件：有对手手牌 <= 2 张（随时可能出完）
   if (context) {
     const hasCloseOpponent = context.opponentHandSizes.some(
       (size, i) => i !== context.mySeat && size > 0 && size <= 2,
@@ -356,6 +380,9 @@ function decideFollow(
     );
     if (unbeatableBomb) return { type: 'play', cards: unbeatableBomb.cards };
   }
+
+  // 对手无炸弹时放宽炸弹门槛（手牌≤8即可）
+  if (!opponentBombPossible && hand.length <= 8) return { type: 'play', cards: minBomb.cards };
 
   // c) 手牌 ≤ 2 组牌型 → 炸弹加速清牌
   if (analysis.groupsCount <= 2) return { type: 'play', cards: minBomb.cards };
