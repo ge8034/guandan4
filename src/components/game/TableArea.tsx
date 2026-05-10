@@ -113,7 +113,7 @@ function TableTurn({
         ) : (
           <div className="flex gap-1 animate-fade-in-scale">
             {turn.cards?.map((card, i) => (
-              <PlayingCard key={i} card={card} size="sm" />
+              <PlayingCard key={i} card={card} size="md" />
             ))}
           </div>
         )
