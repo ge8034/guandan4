@@ -81,7 +81,7 @@ export default function RoomPage() {
 
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
   const [playingIndices, setPlayingIndices] = useState<Set<number>>(new Set());
-  const [lockedGroups, setLockedGroups] = useState<number[][]>([]);
+  const [lockedGroups, setLockedGroups] = useState<Card[][]>([]);
   const [gameId] = useState(() => crypto.randomUUID());
   const [connected, setConnected] = useState(false);
   const [initializing, setInitializing] = useState(true);
@@ -208,16 +208,18 @@ export default function RoomPage() {
       if (currentSeat !== effectiveMySeat) return;
       sound.playSelect();
 
-      // 检查是否属于锁定组：锁定组整组选中/取消
-      const group = lockedGroups.find((g) => g.includes(index));
+      // 检查是否属于锁定组：通过牌对象引用匹配
+      const card = myHand[index];
+      const group = card ? lockedGroups.find((g) => g.some((c) => c === card)) : undefined;
       if (group) {
+        const groupIndices = group.map((c) => myHand.indexOf(c)).filter((i) => i !== -1);
         setSelectedIndices((prev) => {
           const next = new Set(prev);
-          const allSelected = group.every((i) => prev.has(i));
+          const allSelected = groupIndices.every((i) => prev.has(i));
           if (allSelected) {
-            group.forEach((i) => next.delete(i));
+            groupIndices.forEach((i) => next.delete(i));
           } else {
-            group.forEach((i) => next.add(i));
+            groupIndices.forEach((i) => next.add(i));
           }
           return next;
         });
@@ -249,8 +251,8 @@ export default function RoomPage() {
     setTimeout(() => {
       playCards(effectiveMySeat, selected);
       setPlayingIndices(new Set());
-      // 更新锁牌索引
-      updateLockedAfterPlay(Array.from(selectedIndices));
+      // 更新锁牌（移除已打出的牌）
+      updateLockedAfterPlay(selected);
       // 音效
       const classified = classifyHand(selected, levelRank);
       if (classified?.type === 'bomb' || classified?.type === 'rocket') {
@@ -299,44 +301,33 @@ export default function RoomPage() {
     .map((i) => myHand[i])
     .filter(Boolean);
   const selectedIsValid = selectedCards.length > 0 && classifyHand(selectedCards, levelRank) !== null;
+  // 检查选中是否恰好是某个已锁定组
   const selectedIsLockedGroup = lockedGroups.some(
-    (g) => g.length === selectedIndices.size && g.every((i) => selectedIndices.has(i)),
+    (g) => g.length === selectedCards.length && g.every((c) => selectedCards.some((sc) => sc === c)),
   );
   const canLock = selectedIsValid && !selectedIsLockedGroup;
   const canUnlock = selectedIsLockedGroup;
 
   const handleLock = useCallback(() => {
     if (!canLock) return;
-    const indices = Array.from(selectedIndices);
-    setLockedGroups((prev) => [...prev, indices]);
+    setLockedGroups((prev) => [...prev, [...selectedCards]]);
     setSelectedIndices(new Set());
-  }, [canLock, selectedIndices]);
+  }, [canLock, selectedCards]);
 
   const handleUnlock = useCallback(() => {
     if (!canUnlock) return;
-    setLockedGroups((prev) => prev.filter((g) => !g.every((i) => selectedIndices.has(i))));
+    setLockedGroups((prev) => prev.filter((g) => !g.every((c) => selectedCards.some((sc) => sc === c))));
     setSelectedIndices(new Set());
-  }, [canUnlock, selectedIndices]);
+  }, [canUnlock, selectedCards]);
 
-  // 出牌后更新锁牌索引（移除已打出的牌）
-  const updateLockedAfterPlay = useCallback((playedIndices: number[]) => {
-    const playedSet = new Set(playedIndices);
+  // 出牌后更新锁牌（移除已打出的牌对象）
+  const updateLockedAfterPlay = useCallback((playedCards: Card[]) => {
     setLockedGroups((prev) =>
       prev
-        .map((g) => g.filter((i) => !playedSet.has(i))) // 移除已出的牌
-        .filter((g) => g.length > 0)                     // 删空组
-    );
-  }, []);
-
-  // 手牌变化时清理越界索引（进贡等场景）
-  useEffect(() => {
-    const maxIdx = myHand.length;
-    setLockedGroups((prev) =>
-      prev
-        .map((g) => g.filter((i) => i < maxIdx))
+        .map((g) => g.filter((c) => !playedCards.some((pc) => pc === c)))
         .filter((g) => g.length > 0)
     );
-  }, [myHand.length]);
+  }, []);
 
   if (initializing || phase === 'idle' || !connected) {
     return <RoomSkeleton />;

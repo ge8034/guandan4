@@ -10,7 +10,7 @@ interface HandAreaProps {
   loading?: boolean;
   playingIndices?: Set<number>;
   onCardClick?: (index: number) => void;
-  lockedGroups?: number[][];
+  lockedGroups?: CardData[][];
   onDragSelect?: (indices: number[]) => void;
   onDeselectAll?: () => void;
 }
@@ -106,8 +106,13 @@ export function HandArea({
     );
   }
 
-  // 锁牌组置左（组内点数降序），组间加间距，每组一个蓝色边框
-  const lockedIndices = new Set(lockedGroups?.flat() || []);
+  // 锁牌组置左：通过牌对象引用找到各锁定牌在当前手牌中的索引
+  const lockedCardSet = new Set(lockedGroups?.flatMap(g => g) || []);
+  const lockedIndices = new Set(
+    cards
+      .map((c, i) => (lockedCardSet.has(c) ? i : -1))
+      .filter(i => i !== -1)
+  );
   const unlockedIndices = cards.map((_, i) => i).filter(i => !lockedIndices.has(i));
 
   let renderSeq = 0;
@@ -126,7 +131,10 @@ export function HandArea({
       >
         {/* 锁牌组 — 每组一个蓝色边框包裹 */}
         {lockedGroups?.map((group, gi) => {
-          const sorted = [...group].sort((a, b) => (cards[b]?.value ?? 0) - (cards[a]?.value ?? 0));
+          // 将牌对象转回当前手牌中的索引
+          const indices = group.map(c => cards.indexOf(c)).filter(i => i !== -1);
+          if (indices.length === 0) return null;
+          const sorted = [...indices].sort((a, b) => (cards[b]?.value ?? 0) - (cards[a]?.value ?? 0));
           return (
             <div
               key={`lock-${gi}`}
