@@ -2,10 +2,7 @@
 -- 清除 guandan3-web 旧数据 + 创建新表结构
 
 -- 1. 清除旧数据
-delete from public.scores;
 delete from public.turns;
-delete from public.game_hands;
-delete from public.games;
 delete from public.room_members;
 delete from public.rooms;
 
@@ -71,6 +68,7 @@ create policy "rooms_read_all" on public.rooms for select using (true);
 -- rooms: 创建者可插入/更新
 create policy "rooms_insert_own" on public.rooms for insert with check (auth.uid() = created_by);
 create policy "rooms_update_own" on public.rooms for update using (auth.uid() = created_by);
+create policy "rooms_delete_own" on public.rooms for delete using (auth.uid() = created_by);
 
 -- room_members: 同房间成员可读
 create policy "members_read_room" on public.room_members for select
