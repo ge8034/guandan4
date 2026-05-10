@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -29,7 +29,8 @@ export default function LobbyPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [newRoomName, setNewRoomName] = useState('');
   const [newRoomType, setNewRoomType] = useState<'practice' | 'battle'>('battle');
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; roomId: string } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const deleteRoomIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     init();
@@ -53,14 +54,18 @@ export default function LobbyPage() {
     router.push(`/room/${roomId}`);
   };
 
-  const handleDelete = async (roomId: string) => {
+  const handleDelete = async () => {
+    const roomId = deleteRoomIdRef.current;
+    if (!roomId) return;
     await remove(roomId);
+    deleteRoomIdRef.current = null;
     setContextMenu(null);
   };
 
   const handleContextMenu = (e: React.MouseEvent, roomId: string) => {
     e.preventDefault();
-    setContextMenu({ x: e.clientX, y: e.clientY, roomId });
+    deleteRoomIdRef.current = roomId;
+    setContextMenu({ x: e.clientX, y: e.clientY });
   };
 
   useEffect(() => {
@@ -154,7 +159,7 @@ export default function LobbyPage() {
         >
           <button
             className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
-            onClick={() => handleDelete(contextMenu.roomId)}
+            onClick={handleDelete}
           >
             删除房间
           </button>
