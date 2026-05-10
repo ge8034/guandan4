@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -24,12 +23,13 @@ const statusLabels: Record<string, string> = {
 
 export default function LobbyPage() {
   const router = useRouter();
-  const { rooms, currentRoomId, loading, error, init, createAndJoin, join, leave, loadRooms } =
+  const { rooms, currentRoomId, loading, error, init, createAndJoin, join, leave, loadRooms, remove } =
     useRoomStore();
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [newRoomName, setNewRoomName] = useState('');
   const [newRoomType, setNewRoomType] = useState<'practice' | 'battle'>('battle');
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; roomId: string } | null>(null);
 
   useEffect(() => {
     init();
@@ -52,6 +52,22 @@ export default function LobbyPage() {
     await join(roomId);
     router.push(`/room/${roomId}`);
   };
+
+  const handleDelete = async (roomId: string) => {
+    await remove(roomId);
+    setContextMenu(null);
+  };
+
+  const handleContextMenu = (e: React.MouseEvent, roomId: string) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, roomId });
+  };
+
+  useEffect(() => {
+    const close = () => setContextMenu(null);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, []);
 
   if (loading) {
     return (
@@ -100,10 +116,11 @@ export default function LobbyPage() {
       {/* 房间列表 */}
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map(({ room, playerCount }) => (
-          <Link
+          <div
             key={room.id}
-            href={`/room/${room.id}`}
+            onContextMenu={(e) => handleContextMenu(e, room.id)}
             onClick={() => handleJoin(room.id)}
+            className="cursor-pointer"
           >
             <Card variant="hoverable" padding="lg" className="h-full">
               <div className="flex items-start justify-between">
@@ -119,7 +136,7 @@ export default function LobbyPage() {
                 </span>
               </div>
             </Card>
-          </Link>
+          </div>
         ))}
         {filtered.length === 0 && !loading && (
           <p className="col-span-full py-12 text-center text-sm text-neutral-400">
@@ -127,6 +144,21 @@ export default function LobbyPage() {
           </p>
         )}
       </div>
+
+      {/* 右键菜单 */}
+      {contextMenu && (
+        <div
+          className="fixed z-50 rounded-lg border border-neutral-200 bg-white shadow-lg py-1 min-w-[120px]"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+        >
+          <button
+            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+            onClick={() => handleDelete(contextMenu.roomId)}
+          >
+            删除房间
+          </button>
+        </div>
+      )}
 
       {/* 创建房间弹窗 */}
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="创建房间">

@@ -107,3 +107,11 @@ export async function leaveRoom(roomId: string): Promise<void> {
     .eq('room_id', roomId)
     .eq('user_id', userId);
 }
+
+export async function deleteRoom(roomId: string): Promise<void> {
+  const userId = getUserIdSync();
+  if (!userId) return;
+  // 删除房间成员和房间本身
+  await supabase.from('room_members').delete().eq('room_id', roomId);
+  await supabase.from('rooms').delete().eq('id', roomId).eq('owner_id', userId);
+}

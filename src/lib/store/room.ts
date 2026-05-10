@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { RoomWithMembers } from '@/lib/supabase/rooms';
-import { fetchRooms, createRoom, joinRoom, leaveRoom } from '@/lib/supabase/rooms';
+import { fetchRooms, createRoom, joinRoom, leaveRoom, deleteRoom } from '@/lib/supabase/rooms';
 import { getOrCreateUser, getUserIdSync } from '@/lib/supabase/auth';
 
 interface RoomStore {
@@ -16,6 +16,7 @@ interface RoomStore {
   createAndJoin: (name: string, type: 'practice' | 'battle') => Promise<string>;
   join: (roomId: string) => Promise<void>;
   leave: () => Promise<void>;
+  remove: (roomId: string) => Promise<void>;
 }
 
 export const useRoomStore = create<RoomStore>((set, get) => ({
@@ -68,6 +69,15 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       await leaveRoom(currentRoomId);
       set({ currentRoomId: null, mySeat: null });
       await get().loadRooms();
+    }
+  },
+
+  remove: async (roomId: string) => {
+    try {
+      await deleteRoom(roomId);
+      await get().loadRooms();
+    } catch (e) {
+      set({ error: (e as Error).message });
     }
   },
 }));
