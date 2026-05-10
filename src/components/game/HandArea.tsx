@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef, useState, useCallback } from 'react';
 import { PlayingCard, type CardData } from './PlayingCard';
 
 interface HandAreaProps {
@@ -10,6 +11,7 @@ interface HandAreaProps {
   playingIndices?: Set<number>;
   onCardClick?: (index: number) => void;
   lockedGroups?: number[][];
+  onDragSelect?: (indices: number[]) => void;
 }
 
 function CardSkeleton({ index }: { index: number }) {
@@ -32,7 +34,41 @@ export function HandArea({
   playingIndices,
   onCardClick,
   lockedGroups,
+  onDragSelect,
 }: HandAreaProps) {
+  const [dragging, setDragging] = useState(false);
+  const dragSet = useRef<Set<number>>(new Set());
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragStartX = useRef(0);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (disabled) return;
+    setDragging(true);
+    dragSet.current = new Set();
+    dragStartX.current = e.clientX;
+  }, [disabled]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragging) return;
+    // 忽略微小的鼠标移动（避免误触发拖拽）
+    const els = containerRef.current?.querySelectorAll('[data-hand-index]') as NodeListOf<HTMLElement>;
+    if (!els || els.length === 0) return;
+    for (const el of els) {
+      const rect = el.getBoundingClientRect();
+      if (e.clientX >= rect.left && e.clientX <= rect.right &&
+          e.clientY >= rect.top && e.clientY <= rect.bottom) {
+        dragSet.current.add(Number(el.getAttribute('data-hand-index')));
+      }
+    }
+  }, [dragging]);
+
+  const handleMouseUp = useCallback(() => {
+    if (!dragging) return;
+    setDragging(false);
+    if (dragSet.current.size > 0) {
+      onDragSelect?.(Array.from(dragSet.current));
+    }
+  }, [dragging, onDragSelect]);
   if (loading) {
     return (
       <div className="w-full overflow-x-auto">
@@ -72,8 +108,15 @@ export function HandArea({
   const nextSeq = () => renderSeq++;
 
   return (
-    <div className="w-full overflow-x-auto animate-fade-in-up">
-      <div className="flex justify-center min-w-max px-2 py-4">
+    <div className="w-full overflow-x-auto animate-fade-in-up select-none">
+      <div
+        ref={containerRef}
+        className="flex justify-center min-w-max px-2 py-4"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         {/* 锁牌组 — 每组一个蓝色边框包裹 */}
         {lockedGroups?.map((group, gi) => {
           const sorted = [...group].sort((a, b) => (cards[b]?.value ?? 0) - (cards[a]?.value ?? 0));
@@ -90,6 +133,7 @@ export function HandArea({
                   return (
                     <div
                       key={`${card.suit}-${card.rank}-${origIndex}`}
+                      data-hand-index={origIndex}
                       className="transition-all duration-200 ease-out"
                       style={{
                         marginLeft: sorted.indexOf(origIndex) > 0 ? 'var(--card-overlap)' : '0',
@@ -120,6 +164,7 @@ export function HandArea({
           return (
             <div
               key={`${card.suit}-${card.rank}-${origIndex}`}
+              data-hand-index={origIndex}
               className={[
                 'transition-all duration-200 ease-out',
                 isPlaying && 'animate-fly-away',

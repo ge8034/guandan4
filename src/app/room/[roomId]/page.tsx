@@ -277,6 +277,14 @@ export default function RoomPage() {
     }
   }, [effectiveMySeat, mySeat, passTurn, send, roomId, gameId, turnNo, sound]);
 
+  const handleDragSelect = useCallback((indices: number[]) => {
+    setSelectedIndices((prev) => {
+      const next = new Set(prev);
+      indices.forEach((i) => next.add(i));
+      return next;
+    });
+  }, []);
+
   const handleHint = useCallback(() => {
     if (myHand.length > 0) setSelectedIndices(new Set([0]));
   }, [myHand]);
@@ -435,7 +443,7 @@ export default function RoomPage() {
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} />
               <div className="w-full max-w-4xl px-0 hidden sm:block" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
-                <HandArea cards={myHand} lockedGroups={lockedGroups}
+                <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
                   disabled={currentSeat !== effectiveMySeat}
@@ -443,7 +451,7 @@ export default function RoomPage() {
               </div>
               {/* 移动端手牌 */}
               <div className="w-full max-w-4xl px-0 sm:hidden">
-                <HandArea cards={myHand} lockedGroups={lockedGroups}
+                <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
                   disabled={currentSeat !== effectiveMySeat}
