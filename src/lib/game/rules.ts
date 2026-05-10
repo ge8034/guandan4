@@ -80,6 +80,13 @@ function classifyPair(
   cards: Card[],
   levelRank: number,
 ): ClassifiedHand | null {
+  // 纯王牌对子（2大王=200 或 2小王=100）
+  if (normals.length === 0 && wildCount === 0) {
+    const jokers = cards.filter(c => c.suit === 'joker');
+    if (jokers.length === 2 && jokers[0].value === jokers[1].value) {
+      return { type: 'pair', cards, score: jokers[0].value };
+    }
+  }
   if (normals.length === 2 && normals[0].value === normals[1].value) {
     return { type: 'pair', cards, score: getCardScore(normals[0], levelRank) };
   }
@@ -315,8 +322,8 @@ export function classifyHand(cards: Card[], levelRank: number): ClassifiedHand |
   // 单张（含单张王）
   if (cards.length === 1) return classifySingle(cards, levelRank);
 
-  // 非火箭的多张手牌不能有王
-  if (jokers.length > 0) return null;
+  // 不能将王牌与普通牌混合（纯王牌对子/三同除外）
+  if (jokers.length > 0 && normals.length > 0) return null;
 
   // 检查炸弹：所有普通牌必须是同一面值
   if (normals.length > 0) {
