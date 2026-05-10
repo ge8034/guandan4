@@ -327,6 +327,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       turnNo: state.turnNo + 1,
       error: null,
     });
+
+    // 自动过牌：如果下一位就是上次出牌者且未触发新轮次，继续过牌直到新轮次
+    if (!newRound && next === playSeat) {
+      get().handleRemotePass(next);
+    } else if (newRound) {
+      // 新轮次 leader 空手则递归跳过
+    }
   },
 
   /** 游戏结束，计算升级并保存最终排名 */
