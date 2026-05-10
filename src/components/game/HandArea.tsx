@@ -185,7 +185,7 @@ export function HandArea({
               data-hand-index={origIndex}
               className={[
                 'transition-all duration-200 ease-out',
-                isPlaying && 'animate-fly-away',
+                isPlaying && 'animate-fly-away will-change-transform',
               ].filter(Boolean).join(' ')}
               style={{
                 marginLeft: seq > 0 ? 'var(--card-overlap)' : '0',

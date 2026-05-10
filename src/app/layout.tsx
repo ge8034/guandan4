@@ -20,8 +20,14 @@ export const metadata: Metadata = {
   title: 'GuanDan4',
   description: '经典掼蛋在线卡牌游戏',
   manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    title: '掼蛋',
+    statusBarStyle: 'black-translucent',
+  },
   other: {
     'theme-color': '#4f46e5',
+    'mobile-web-app-capable': 'yes',
   },
 };
 
