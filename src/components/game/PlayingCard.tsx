@@ -95,10 +95,11 @@ export function PlayingCard({
       disabled={disabled}
       aria-label={getAriaLabel(card)}
       aria-pressed={selected}
+      style={isLevelCard ? { backgroundColor: '#d1d5db' } : undefined}
       className={[
         'relative flex shrink-0 select-none flex-col items-center justify-center',
         'rounded-md border-2 font-card',
-        isLevelCard ? 'bg-neutral-300' : 'bg-card-bg',
+        'bg-card-bg',
         'transition-all duration-150 ease-out',
         sizeDimensions[size],
         selected
