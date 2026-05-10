@@ -64,28 +64,58 @@ export function HandArea({
     );
   }
 
-  // 构建渲染顺序：锁牌组置左（组内点数降序），其余按原顺序
+  // 锁牌组置左（组内点数降序），组间加间距，每组一个蓝色边框
   const lockedIndices = new Set(lockedGroups?.flat() || []);
-  const lockedOrder = lockedGroups?.flatMap(g =>
-    [...g].sort((a, b) => (cards[b]?.value ?? 0) - (cards[a]?.value ?? 0))
-  ) || [];
-  const unlockedOrder = cards
-    .map((_, i) => i)
-    .filter(i => !lockedIndices.has(i));
+  const unlockedIndices = cards.map((_, i) => i).filter(i => !lockedIndices.has(i));
 
-  const renderOrder = [...lockedOrder, ...unlockedOrder];
-  // 渲染位置映射
-  const renderIndexMap = new Map(renderOrder.map((origIdx, renderIdx) => [origIdx, renderIdx]));
-  const isLocked = (idx: number) => lockedIndices.has(idx);
+  let renderSeq = 0;
+  const nextSeq = () => renderSeq++;
 
   return (
     <div className="w-full overflow-x-auto animate-fade-in-up">
       <div className="flex justify-center min-w-max px-2 py-4">
-        {renderOrder.map((origIndex, renderIndex) => {
+        {/* 锁牌组 — 每组一个蓝色边框包裹 */}
+        {lockedGroups?.map((group, gi) => {
+          const sorted = [...group].sort((a, b) => (cards[b]?.value ?? 0) - (cards[a]?.value ?? 0));
+          return (
+            <div
+              key={`lock-${gi}`}
+              className="flex items-end -translate-y-1.5 mr-0.5"
+            >
+              <div className="flex ring-2 ring-blue-400/50 rounded-lg px-0.5 py-0.5">
+                {sorted.map((origIndex) => {
+                  const card = cards[origIndex];
+                  if (!card) return null;
+                  const seq = nextSeq();
+                  return (
+                    <div
+                      key={`${card.suit}-${card.rank}-${origIndex}`}
+                      className="transition-all duration-200 ease-out"
+                      style={{
+                        marginLeft: sorted.indexOf(origIndex) > 0 ? 'var(--card-overlap)' : '0',
+                        zIndex: seq,
+                      }}
+                    >
+                      <PlayingCard
+                        card={card}
+                        selected={selectedCardIds?.has(origIndex)}
+                        disabled={disabled}
+                        onClick={() => onCardClick?.(origIndex)}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* 未锁定牌 */}
+        {unlockedIndices.map((origIndex) => {
           const card = cards[origIndex];
           if (!card) return null;
           const isPlaying = playingIndices?.has(origIndex);
-          const locked = isLocked(origIndex);
+          const seq = nextSeq();
 
           return (
             <div
@@ -93,21 +123,18 @@ export function HandArea({
               className={[
                 'transition-all duration-200 ease-out',
                 isPlaying && 'animate-fly-away',
-                locked && '-translate-y-1.5',
               ].filter(Boolean).join(' ')}
               style={{
-                marginLeft: renderIndex > 0 ? 'var(--card-overlap)' : '0',
-                zIndex: renderIndex,
+                marginLeft: seq > 0 ? 'var(--card-overlap)' : '0',
+                zIndex: seq,
               }}
             >
-              <div className={locked ? 'ring-2 ring-amber-400/60 rounded-lg' : ''}>
-                <PlayingCard
-                  card={card}
-                  selected={selectedCardIds?.has(origIndex)}
-                  disabled={disabled || isPlaying}
-                  onClick={() => onCardClick?.(origIndex)}
-                />
-              </div>
+              <PlayingCard
+                card={card}
+                selected={selectedCardIds?.has(origIndex)}
+                disabled={disabled || isPlaying}
+                onClick={() => onCardClick?.(origIndex)}
+              />
             </div>
           );
         })}
