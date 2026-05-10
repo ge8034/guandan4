@@ -334,11 +334,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const state = get();
     if (state.phase !== 'playing') return;
     const upgrade = calculateUpgrade(finalRankings);
-    const newLevelRank = Math.min(state.levelRank + upgrade, 14);
-    const isFinalVictory = state.levelRank >= 14;
+
+    // 用获胜队伍自身的等级计算升级，而非共享 levelRank
+    const winningTeam = finalRankings[0] % 2; // 0=队A(0,2), 1=队B(1,3)
+    const newLevelRank = Math.min(state.teamLevels[winningTeam] + upgrade, 14);
+    // 过A标准规则：已在A级(14)获胜才算最终胜利
+    const isFinalVictory = state.teamLevels[winningTeam] >= 14;
 
     // 更新获胜团队等级
-    const winningTeam = finalRankings[0] % 2; // 0=队A(0,2), 1=队B(1,3)
     const newTeamLevels: [number, number] = [...state.teamLevels];
     newTeamLevels[winningTeam] = newLevelRank;
 
@@ -438,6 +441,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       roundNumber: 1,
       isFinalVictory: false,
       tributeInfo: null,
+      teamLevels: [2, 2],
       error: null,
     });
   },

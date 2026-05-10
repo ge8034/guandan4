@@ -70,9 +70,9 @@ create policy "rooms_insert_own" on public.rooms for insert with check (auth.uid
 create policy "rooms_update_own" on public.rooms for update using (auth.uid() = created_by);
 create policy "rooms_delete_own" on public.rooms for delete using (auth.uid() = created_by);
 
--- room_members: 同房间成员可读
+-- room_members: 认证用户可读
 create policy "members_read_room" on public.room_members for select
-  using (room_id in (select room_id from public.room_members where user_id = auth.uid()));
+  using (auth.uid() is not null);
 -- room_members: 用户可插入/删除自己
 create policy "members_insert_own" on public.room_members for insert with check (auth.uid() = user_id);
 create policy "members_delete_own" on public.room_members for delete using (auth.uid() = user_id);
