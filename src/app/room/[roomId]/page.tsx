@@ -69,7 +69,7 @@ export default function RoomPage() {
   const roomId = params.roomId as string;
 
   const {
-    phase, hands, currentSeat, turnNo, recentTurns, lastPlay,
+    phase, hands, currentSeat, turnNo, recentTurns, lastPlay, passCount,
     levelRank, rankings, roundNumber, tributeInfo, error,
     startGame, playCards, passTurn,
     handleRemotePlay, handleRemotePass,
@@ -144,6 +144,22 @@ export default function RoomPage() {
     }
     prevPhaseRef.current = phase;
   }, [phase, roundNumber]);
+
+  // 自动领牌：当自己出牌后其他人全过牌，出牌权回到自己时自动触发新轮次
+  const autoPassRef = useRef(false);
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    if (currentSeat === effectiveMySeat && lastPlay?.seatNo === effectiveMySeat && passCount > 0) {
+      // 出牌权回到自己 → 其他人全过牌 → 自动过牌触发新轮次成为领牌者
+      if (!autoPassRef.current) {
+        autoPassRef.current = true;
+        setTimeout(() => {
+          passTurn(effectiveMySeat);
+          autoPassRef.current = false;
+        }, 100);
+      }
+    }
+  }, [phase, currentSeat, lastPlay, effectiveMySeat, passCount, passTurn]);
 
   // AI 自动出牌 — 使用 setInterval 轮询，避免 setTimeout 锁问题
   const lastAiActionRef = useRef<string>('');
