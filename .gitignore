@@ -9,3 +9,5 @@ __pycache__/
 *.pyc
 .claude/settings.local.json
 test-results/
+
+.vercel
