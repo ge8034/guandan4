@@ -112,6 +112,6 @@ export async function deleteRoom(roomId: string): Promise<void> {
   const userId = getUserIdSync();
   if (!userId) throw new Error('请先登录后再删除房间');
   await supabase.from('room_members').delete().eq('room_id', roomId);
-  const { error } = await supabase.from('rooms').delete().eq('id', roomId).eq('owner_id', userId);
+  const { error } = await supabase.from('rooms').delete().eq('id', roomId);
   if (error) throw error;
 }
