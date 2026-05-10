@@ -12,6 +12,7 @@ interface HandAreaProps {
   onCardClick?: (index: number) => void;
   lockedGroups?: number[][];
   onDragSelect?: (indices: number[]) => void;
+  onDeselectAll?: () => void;
 }
 
 function CardSkeleton({ index }: { index: number }) {
@@ -35,6 +36,7 @@ export function HandArea({
   onCardClick,
   lockedGroups,
   onDragSelect,
+  onDeselectAll,
 }: HandAreaProps) {
   const [dragging, setDragging] = useState(false);
   const dragSet = useRef<Set<number>>(new Set());
@@ -43,22 +45,30 @@ export function HandArea({
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (disabled) return;
+    // 点击空白处解除所有选中
+    const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+    const card = el?.closest?.('[data-hand-index]') as HTMLElement | null;
+    if (!card) {
+      onDeselectAll?.();
+      return;
+    }
     setDragging(true);
     dragSet.current = new Set();
     dragStartX.current = e.clientX;
-  }, [disabled]);
+  }, [disabled, onDeselectAll]);
+
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    onDeselectAll?.();
+  }, [onDeselectAll]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!dragging) return;
-    // 忽略微小的鼠标移动（避免误触发拖拽）
-    const els = containerRef.current?.querySelectorAll('[data-hand-index]') as NodeListOf<HTMLElement>;
-    if (!els || els.length === 0) return;
-    for (const el of els) {
-      const rect = el.getBoundingClientRect();
-      if (e.clientX >= rect.left && e.clientX <= rect.right &&
-          e.clientY >= rect.top && e.clientY <= rect.bottom) {
-        dragSet.current.add(Number(el.getAttribute('data-hand-index')));
-      }
+    // 使用 elementFromPoint 只选中鼠标下最前排的牌
+    const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+    const card = el?.closest?.('[data-hand-index]') as HTMLElement | null;
+    if (card) {
+      dragSet.current.add(Number(card.getAttribute('data-hand-index')));
     }
   }, [dragging]);
 
@@ -116,6 +126,7 @@ export function HandArea({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onContextMenu={handleContextMenu}
       >
         {/* 锁牌组 — 每组一个蓝色边框包裹 */}
         {lockedGroups?.map((group, gi) => {
