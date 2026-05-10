@@ -25,13 +25,13 @@ import type { GameEvent } from '@/lib/supabase/realtime';
 const playerNames = ['牌神', '掼蛋高手', '扑克达人', '我'];
 
 /** 紧凑 AI 手牌行（横向） */
-function CompactHand({ cards }: { cards: Card[] }) {
+function CompactHand({ cards, levelRank }: { cards: Card[]; levelRank?: number }) {
   if (!cards || cards.length === 0) return null;
   return (
     <div className="flex gap-0 min-w-max px-1">
       {cards.map((card, i) => (
         <div key={i} className="shrink-0" style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: i }}>
-          <PlayingCard card={card} size="md" />
+          <PlayingCard card={card} size="md" levelRank={levelRank} />
         </div>
       ))}
     </div>
@@ -443,7 +443,7 @@ export default function RoomPage() {
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} />
               <div className="w-full max-w-4xl px-0 hidden sm:block" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
-                <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll}
+                <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
                   disabled={currentSeat !== effectiveMySeat}
@@ -451,7 +451,7 @@ export default function RoomPage() {
               </div>
               {/* 移动端手牌 */}
               <div className="w-full max-w-4xl px-0 sm:hidden">
-                <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll}
+                <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
                   disabled={currentSeat !== effectiveMySeat}

@@ -12,6 +12,7 @@ interface PlayingCardProps {
   disabled?: boolean;
   size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
+  levelRank?: number;
 }
 
 const suitSymbols: Record<string, string> = {
@@ -81,10 +82,12 @@ export function PlayingCard({
   disabled = false,
   size = 'md',
   onClick,
+  levelRank,
 }: PlayingCardProps) {
   const colorClass = suitColors[card.suit];
   const symbol = suitSymbols[card.suit];
   const isJoker = card.suit === 'joker';
+  const isLevelCard = !isJoker && levelRank !== undefined && card.value === levelRank;
 
   return (
     <button
@@ -94,7 +97,8 @@ export function PlayingCard({
       aria-pressed={selected}
       className={[
         'relative flex shrink-0 select-none flex-col items-center justify-center',
-        'rounded-md border-2 bg-card-bg font-card',
+        'rounded-md border-2 font-card',
+        isLevelCard ? 'bg-neutral-200' : 'bg-card-bg',
         'transition-all duration-150 ease-out',
         sizeDimensions[size],
         selected

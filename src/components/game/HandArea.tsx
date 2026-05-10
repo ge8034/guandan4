@@ -13,6 +13,7 @@ interface HandAreaProps {
   lockedGroups?: CardData[][];
   onDragSelect?: (indices: number[]) => void;
   onDeselectAll?: () => void;
+  levelRank?: number;
 }
 
 function CardSkeleton({ index }: { index: number }) {
@@ -37,6 +38,7 @@ export function HandArea({
   lockedGroups,
   onDragSelect,
   onDeselectAll,
+  levelRank,
 }: HandAreaProps) {
   const draggingRef = useRef(false);
   const dragSet = useRef<Set<number>>(new Set());
@@ -159,6 +161,7 @@ export function HandArea({
                         card={card}
                         selected={selectedCardIds?.has(origIndex)}
                         disabled={disabled}
+                        levelRank={levelRank}
                         onClick={() => onCardClick?.(origIndex)}
                       />
                     </div>
