@@ -105,7 +105,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const newHands = state.hands.map((h) => [...h]);
     for (const card of cards) {
       const idx = newHands[seatNo].findIndex(
-        (c) => c.suit === card.suit && c.rank === card.rank && c.value === card.value,
+        (c) => c === card,
       );
       if (idx !== -1) newHands[seatNo].splice(idx, 1);
     }
@@ -228,7 +228,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const newHands = state.hands.map((h) => [...h]);
     for (const card of cards) {
       const idx = newHands[seatNo].findIndex(
-        (c) => c.suit === card.suit && c.rank === card.rank && c.value === card.value,
+        (c) => c === card,
       );
       if (idx !== -1) newHands[seatNo].splice(idx, 1);
     }
