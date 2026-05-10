@@ -9,6 +9,7 @@ interface HandAreaProps {
   loading?: boolean;
   playingIndices?: Set<number>;
   onCardClick?: (index: number) => void;
+  lockedGroups?: number[][];
 }
 
 function CardSkeleton({ index }: { index: number }) {
@@ -30,6 +31,7 @@ export function HandArea({
   loading = false,
   playingIndices,
   onCardClick,
+  lockedGroups,
 }: HandAreaProps) {
   if (loading) {
     return (
@@ -62,30 +64,50 @@ export function HandArea({
     );
   }
 
+  // 构建渲染顺序：锁牌组置左（组内点数降序），其余按原顺序
+  const lockedIndices = new Set(lockedGroups?.flat() || []);
+  const lockedOrder = lockedGroups?.flatMap(g =>
+    [...g].sort((a, b) => (cards[b]?.value ?? 0) - (cards[a]?.value ?? 0))
+  ) || [];
+  const unlockedOrder = cards
+    .map((_, i) => i)
+    .filter(i => !lockedIndices.has(i));
+
+  const renderOrder = [...lockedOrder, ...unlockedOrder];
+  // 渲染位置映射
+  const renderIndexMap = new Map(renderOrder.map((origIdx, renderIdx) => [origIdx, renderIdx]));
+  const isLocked = (idx: number) => lockedIndices.has(idx);
+
   return (
     <div className="w-full overflow-x-auto animate-fade-in-up">
       <div className="flex justify-center min-w-max px-2 py-4">
-        {cards.map((card, index) => {
-          const isPlaying = playingIndices?.has(index);
+        {renderOrder.map((origIndex, renderIndex) => {
+          const card = cards[origIndex];
+          if (!card) return null;
+          const isPlaying = playingIndices?.has(origIndex);
+          const locked = isLocked(origIndex);
 
           return (
             <div
-              key={`${card.suit}-${card.rank}-${index}`}
+              key={`${card.suit}-${card.rank}-${origIndex}`}
               className={[
                 'transition-all duration-200 ease-out',
                 isPlaying && 'animate-fly-away',
+                locked && '-translate-y-1.5',
               ].filter(Boolean).join(' ')}
               style={{
-                marginLeft: index > 0 ? 'var(--card-overlap)' : '0',
-                zIndex: index,
+                marginLeft: renderIndex > 0 ? 'var(--card-overlap)' : '0',
+                zIndex: renderIndex,
               }}
             >
-              <PlayingCard
-                card={card}
-                selected={selectedCardIds?.has(index)}
-                disabled={disabled || isPlaying}
-                onClick={() => onCardClick?.(index)}
-              />
+              <div className={locked ? 'ring-2 ring-amber-400/60 rounded-lg' : ''}>
+                <PlayingCard
+                  card={card}
+                  selected={selectedCardIds?.has(origIndex)}
+                  disabled={disabled || isPlaying}
+                  onClick={() => onCardClick?.(origIndex)}
+                />
+              </div>
             </div>
           );
         })}

@@ -6,6 +6,10 @@ interface ActionBarProps {
   onPlay: () => void;
   onPass: () => void;
   onHint: () => void;
+  canLock?: boolean;
+  canUnlock?: boolean;
+  onLock?: () => void;
+  onUnlock?: () => void;
 }
 
 export function ActionBar({
@@ -14,6 +18,10 @@ export function ActionBar({
   onPlay,
   onPass,
   onHint,
+  canLock = false,
+  canUnlock = false,
+  onLock,
+  onUnlock,
 }: ActionBarProps) {
   return (
     <div className="flex items-center justify-center gap-3 px-4 py-3">
@@ -26,6 +34,26 @@ export function ActionBar({
       >
         提示
       </Button>
+      {canUnlock && onUnlock ? (
+        <Button
+          variant="outline"
+          size="md"
+          onClick={onUnlock}
+          className="border-amber-400/40 text-amber-300/80 hover:bg-amber-400/10 hover:border-amber-400/60"
+        >
+          解锁
+        </Button>
+      ) : canLock && onLock ? (
+        <Button
+          variant="outline"
+          size="md"
+          onClick={onLock}
+          disabled={!canPlay}
+          className="border-amber-400/25 text-amber-300/70 hover:bg-amber-400/10 hover:border-amber-400/40"
+        >
+          锁牌
+        </Button>
+      ) : null}
       <Button
         variant="outline"
         size="md"

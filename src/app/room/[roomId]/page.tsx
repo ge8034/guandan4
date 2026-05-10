@@ -81,6 +81,7 @@ export default function RoomPage() {
 
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
   const [playingIndices, setPlayingIndices] = useState<Set<number>>(new Set());
+  const [lockedGroups, setLockedGroups] = useState<number[][]>([]);
   const [gameId] = useState(() => crypto.randomUUID());
   const [connected, setConnected] = useState(false);
   const [initializing, setInitializing] = useState(true);
@@ -206,6 +207,23 @@ export default function RoomPage() {
     (index: number) => {
       if (currentSeat !== effectiveMySeat) return;
       sound.playSelect();
+
+      // 检查是否属于锁定组：锁定组整组选中/取消
+      const group = lockedGroups.find((g) => g.includes(index));
+      if (group) {
+        setSelectedIndices((prev) => {
+          const next = new Set(prev);
+          const allSelected = group.every((i) => prev.has(i));
+          if (allSelected) {
+            group.forEach((i) => next.delete(i));
+          } else {
+            group.forEach((i) => next.add(i));
+          }
+          return next;
+        });
+        return;
+      }
+
       setSelectedIndices((prev) => {
         const next = new Set(prev);
         if (next.has(index)) next.delete(index);
@@ -213,7 +231,7 @@ export default function RoomPage() {
         return next;
       });
     },
-    [currentSeat, effectiveMySeat, sound],
+    [currentSeat, effectiveMySeat, sound, lockedGroups],
   );
 
   const handlePlay = useCallback(() => {
@@ -231,6 +249,8 @@ export default function RoomPage() {
     setTimeout(() => {
       playCards(effectiveMySeat, selected);
       setPlayingIndices(new Set());
+      // 更新锁牌索引
+      updateLockedAfterPlay(Array.from(selectedIndices));
       // 音效
       const classified = classifyHand(selected, levelRank);
       if (classified?.type === 'bomb' || classified?.type === 'rocket') {
@@ -260,6 +280,51 @@ export default function RoomPage() {
   const handleHint = useCallback(() => {
     if (myHand.length > 0) setSelectedIndices(new Set([0]));
   }, [myHand]);
+
+  // 锁牌：当前选中形成合法牌型
+  const selectedCards = Array.from(selectedIndices)
+    .sort((a, b) => b - a)
+    .map((i) => myHand[i])
+    .filter(Boolean);
+  const selectedIsValid = selectedCards.length > 0 && classifyHand(selectedCards, levelRank) !== null;
+  const selectedIsLockedGroup = lockedGroups.some(
+    (g) => g.length === selectedIndices.size && g.every((i) => selectedIndices.has(i)),
+  );
+  const canLock = selectedIsValid && !selectedIsLockedGroup;
+  const canUnlock = selectedIsLockedGroup;
+
+  const handleLock = useCallback(() => {
+    if (!canLock) return;
+    const indices = Array.from(selectedIndices);
+    setLockedGroups((prev) => [...prev, indices]);
+    setSelectedIndices(new Set());
+  }, [canLock, selectedIndices]);
+
+  const handleUnlock = useCallback(() => {
+    if (!canUnlock) return;
+    setLockedGroups((prev) => prev.filter((g) => !g.every((i) => selectedIndices.has(i))));
+    setSelectedIndices(new Set());
+  }, [canUnlock, selectedIndices]);
+
+  // 出牌后更新锁牌索引（移除已打出的牌）
+  const updateLockedAfterPlay = useCallback((playedIndices: number[]) => {
+    const playedSet = new Set(playedIndices);
+    setLockedGroups((prev) =>
+      prev
+        .map((g) => g.filter((i) => !playedSet.has(i))) // 移除已出的牌
+        .filter((g) => g.length > 0)                     // 删空组
+    );
+  }, []);
+
+  // 手牌变化时清理越界索引（进贡等场景）
+  useEffect(() => {
+    const maxIdx = myHand.length;
+    setLockedGroups((prev) =>
+      prev
+        .map((g) => g.filter((i) => i < maxIdx))
+        .filter((g) => g.length > 0)
+    );
+  }, [myHand.length]);
 
   if (initializing || phase === 'idle' || !connected) {
     return <RoomSkeleton />;
@@ -370,7 +435,7 @@ export default function RoomPage() {
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} />
               <div className="w-full max-w-4xl px-0 hidden sm:block" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
-                <HandArea cards={myHand}
+                <HandArea cards={myHand} lockedGroups={lockedGroups}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
                   disabled={currentSeat !== effectiveMySeat}
@@ -378,7 +443,7 @@ export default function RoomPage() {
               </div>
               {/* 移动端手牌 */}
               <div className="w-full max-w-4xl px-0 sm:hidden">
-                <HandArea cards={myHand}
+                <HandArea cards={myHand} lockedGroups={lockedGroups}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
                   disabled={currentSeat !== effectiveMySeat}
@@ -404,6 +469,10 @@ export default function RoomPage() {
             onPlay={handlePlay}
             onPass={handlePass}
             onHint={handleHint}
+            canLock={canLock}
+            canUnlock={canUnlock}
+            onLock={handleLock}
+            onUnlock={handleUnlock}
           />
         </div>
       </main>
