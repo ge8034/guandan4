@@ -100,11 +100,12 @@ export function PlayingCard({
         'relative flex shrink-0 select-none flex-col items-center justify-center',
         'rounded-md border-2 font-card',
         'bg-card-bg',
+        isLevelCard && 'border-amber-400 shadow-amber-100',
         'transition-all duration-150 ease-out',
         sizeDimensions[size],
         selected
           ? 'border-accent -translate-y-1.5 scale-[1.02] shadow-lg shadow-accent/20 z-50'
-          : 'border-card-border shadow-sm hover:shadow-md hover:-translate-y-0.5',
+          : !isLevelCard && 'border-card-border shadow-sm hover:shadow-md hover:-translate-y-0.5',
         !disabled && 'cursor-pointer active:scale-95',
         disabled && 'cursor-not-allowed opacity-75',
       ].join(' ')}
