@@ -42,9 +42,16 @@ export function getValidPlays(
     options.push({ type: 'play', cards, classified });
   }
 
-  // 按值分组
+  // 逢人配（可用作任意值，不计入 byValue）
+  const wilds = hand.filter(
+    (c) => c.suit === 'heart' && c.value === levelRank,
+  );
+  const wildCount = wilds.length;
+
+  // 按值分组（排除逢人配）
   const byValue = new Map<number, Card[]>();
   for (const card of hand) {
+    if (card.suit === 'heart' && card.value === levelRank) continue;
     const arr = byValue.get(card.value) || [];
     arr.push(card);
     byValue.set(card.value, arr);
@@ -54,22 +61,29 @@ export function getValidPlays(
   // 单张
   for (const card of hand) addOption([card]);
 
-  // 对子 / 三同张 / 炸弹
-  for (const [, cards] of byValue) {
-    if (cards.length >= 2) addOption(cards.slice(0, 2));
-    if (cards.length >= 3) addOption(cards.slice(0, 3));
-    for (let c = 4; c <= cards.length; c++) addOption(cards.slice(0, c));
+  // 对子 / 三同张 / 炸弹（含逢人配补齐）
+  for (const [value, cards] of byValue) {
+    const total = cards.length + wildCount;
+    if (total >= 2) addOption([...cards, ...wilds].slice(0, 2));
+    if (total >= 3) addOption([...cards, ...wilds].slice(0, 3));
+    for (let c = 4; c <= total; c++) addOption([...cards, ...wilds].slice(0, c));
   }
 
-  // 三带二
-  const triples = values.filter((v) => (byValue.get(v)?.length ?? 0) >= 3);
-  const pairs = values.filter((v) => (byValue.get(v)?.length ?? 0) >= 2);
-  for (const tv of triples) {
-    for (const pv of pairs) {
-      if (pv === tv && (byValue.get(tv)?.length ?? 0) < 5) continue;
+  // 三带二（逢人配补齐到3同或对子）
+  for (const tv of values) {
+    const tn = (byValue.get(tv)?.length ?? 0);
+    for (const pv of values) {
+      const pn = (byValue.get(pv)?.length ?? 0);
+      if (tv === pv && tn + wildCount < 5) continue;
+      const needT = Math.max(0, 3 - tn);
+      const needP = Math.max(0, 2 - (pv === tv ? Math.max(0, pn - 3) : pn));
+      if (needT + needP > wildCount) continue;
       const tCards = byValue.get(tv)!.slice(0, 3);
-      const pCards = byValue.get(pv)!.filter((c) => !tCards.includes(c)).slice(0, 2);
-      if (pCards.length === 2) addOption([...tCards, ...pCards]);
+      const wUsedForT = wilds.slice(0, needT);
+      const wRest = wilds.slice(needT);
+      const pPool = byValue.get(pv)!.filter((c) => !tCards.includes(c));
+      const pCards = [...pPool, ...wRest].slice(0, 2);
+      if (pCards.length === 2) addOption([...tCards, ...wUsedForT, ...pCards]);
     }
   }
 
