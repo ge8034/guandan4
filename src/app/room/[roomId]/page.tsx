@@ -321,6 +321,11 @@ export default function RoomPage() {
   }, [canUnlock, selectedCards]);
 
   // 出牌后更新锁牌（移除已打出的牌对象）
+  // 新一局开始时清除旧锁牌组（新牌对象引用不同）
+  useEffect(() => {
+    setLockedGroups([]);
+  }, [roundNumber]);
+
   const updateLockedAfterPlay = useCallback((playedCards: Card[]) => {
     setLockedGroups((prev) =>
       prev
