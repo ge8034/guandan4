@@ -154,9 +154,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     getCardMemory().record(cards);
 
-    if (newRankings.length >= 3) {
-      const remaining = [0, 1, 2, 3].find((s) => !newRankings.includes(s))!;
-      get().finishGame([...newRankings, remaining]);
+    // 同队两人都出完 → 本轮结束，剩余两人为三四名
+    if (
+      newRankings.length >= 3 ||
+      (newRankings.length === 2 && sameTeam(newRankings[0], newRankings[1]))
+    ) {
+      const remaining = [0, 1, 2, 3].filter((s) => !newRankings.includes(s));
+      get().finishGame([...newRankings, ...remaining]);
     }
   },
 
@@ -271,9 +275,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     getCardMemory().record(cards);
 
-    if (newRankings.length >= 3) {
-      const remaining = [0, 1, 2, 3].find((s) => !newRankings.includes(s))!;
-      get().finishGame([...newRankings, remaining]);
+    // 同队两人都出完 → 本轮结束，剩余两人为三四名
+    if (
+      newRankings.length >= 3 ||
+      (newRankings.length === 2 && sameTeam(newRankings[0], newRankings[1]))
+    ) {
+      const remaining = [0, 1, 2, 3].filter((s) => !newRankings.includes(s));
+      get().finishGame([...newRankings, ...remaining]);
     }
   },
 
