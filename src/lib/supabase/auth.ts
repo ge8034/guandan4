@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, isSupabaseConfigured } from './client';
 
 let cachedUserId: string | null = null;
 
@@ -17,6 +17,7 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 export async function getOrCreateUser(): Promise<string> {
+  if (!isSupabaseConfigured()) return 'anon-' + Math.random().toString(36).slice(2);
   const { data: { session } } = await supabase.auth.getSession();
   if (session?.user?.id) {
     cachedUserId = session.user.id;

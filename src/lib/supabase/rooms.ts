@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, isSupabaseConfigured } from './client';
 import { getUserIdSync } from './auth';
 
 export interface Room {
@@ -27,6 +27,7 @@ export interface RoomWithMembers {
 }
 
 export async function fetchRooms(): Promise<RoomWithMembers[]> {
+  if (!isSupabaseConfigured()) return [];
   const { data: rooms, error } = await supabase
     .from('rooms')
     .select('*, room_members(*)')
