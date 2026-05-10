@@ -196,6 +196,7 @@ export function HandArea({
                 card={card}
                 selected={selectedCardIds?.has(origIndex)}
                 disabled={disabled || isPlaying}
+                levelRank={levelRank}
                 onClick={() => onCardClick?.(origIndex)}
               />
             </div>
