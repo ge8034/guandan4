@@ -80,7 +80,7 @@ export function HandArea({
           return (
             <div
               key={`lock-${gi}`}
-              className="flex items-end -translate-y-1.5 mr-1"
+              className="flex items-end -translate-y-1.5 mr-0.5"
             >
               <div className="flex ring-2 ring-blue-400/50 rounded-lg px-0.5 py-0.5">
                 {sorted.map((origIndex) => {
