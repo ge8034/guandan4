@@ -82,7 +82,7 @@ export default function RoomPage() {
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
   const [playingIndices, setPlayingIndices] = useState<Set<number>>(new Set());
   const [lockedGroups, setLockedGroups] = useState<Card[][]>([]);
-  const [gameId] = useState(() => crypto.randomUUID());
+  const [gameId] = useState(() => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36));
   const [connected, setConnected] = useState(false);
   const [initializing, setInitializing] = useState(true);
   const [dealAnimation, setDealAnimation] = useState(false);
