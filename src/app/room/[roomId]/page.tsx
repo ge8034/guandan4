@@ -88,6 +88,9 @@ export default function RoomPage() {
   const [dealAnimation, setDealAnimation] = useState(false);
   const prevPhaseRef = useRef<GamePhase>(phase);
 
+  // 暴露 store 到 window（供 E2E 测试访问）
+  if (typeof window !== 'undefined') (window as any).__gameStore = useGameStore;
+
   // 初始化
   useEffect(() => {
     if (phase === 'idle') startGame();
