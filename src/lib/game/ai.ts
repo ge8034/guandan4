@@ -155,7 +155,7 @@ export function aiDecide(
   if (lastPlay === null) {
     return decideLead(hand, validPlays, analysis, context);
   }
-  return decideFollow(hand, validPlays, analysis, lastPlay, context);
+  return decideFollow(hand, validPlays, analysis, lastPlay, levelRank, context);
 }
 
 // ---- 手牌结构分析 ----
@@ -291,9 +291,38 @@ function decideLead(
     return { type: 'play', cards: minPair.cards };
   }
 
-  // 三带二（优先清多牌）
+  // 三同张（清 3 张）
+  const triplePlays = nonBombPlays.filter((p) => p.classified.type === 'triple');
+  if (triplePlays.length > 0) {
+    const minTriple = triplePlays.reduce((min, p) =>
+      p.classified.score < min.classified.score ? p : min,
+    );
+    return { type: 'play', cards: minTriple.cards };
+  }
+
+  // 顺子（清 5 张）
+  const straightPlays = nonBombPlays.filter((p) => p.classified.type === 'straight');
+  if (straightPlays.length > 0) {
+    const minStraight = straightPlays.reduce((min, p) =>
+      p.classified.score < min.classified.score ? p : min,
+    );
+    return { type: 'play', cards: minStraight.cards };
+  }
+
+  // 三带二（清 5 张）
   const fullHouse = nonBombPlays.find((p) => p.classified.type === 'triple_pair');
   if (fullHouse) return { type: 'play', cards: fullHouse.cards };
+
+  // 连对/钢板（清 6 张）
+  const seqPlays = nonBombPlays.filter(
+    (p) => p.classified.type === 'sequence_pairs' || p.classified.type === 'sequence_triples',
+  );
+  if (seqPlays.length > 0) {
+    const minSeq = seqPlays.reduce((min, p) =>
+      p.classified.score < min.classified.score ? p : min,
+    );
+    return { type: 'play', cards: minSeq.cards };
+  }
 
   // 出最小的单张
   const minSingle = nonBombPlays
@@ -315,6 +344,7 @@ function decideFollow(
   validPlays: PlayOption[],
   analysis: HandAnalysis,
   lastPlay: ClassifiedHand,
+  levelRank: number,
   context?: AIContext,
 ): AIDecision {
   const nonBombPlays = validPlays.filter(
@@ -347,8 +377,20 @@ function decideFollow(
     if (!isTrulyBig && context?.lastPlaySeat != null && sameTeam(context.mySeat, context.lastPlaySeat)) {
       return { type: 'pass' };
     }
-    // 选分值最低的（刚好管上）
-    const minScore = effectiveNonBomb.reduce((min, p) =>
+    // 记忆驱动：有安全牌（更大同类已出完）则优先出
+    const memForPlay = getCardMemory();
+    const isSafeSingle = (score: number): boolean => {
+      for (let v = score + 1; v <= 14; v++) { if (memForPlay.remainingCount(v) > 0) return false; }
+      if (score < 50 && memForPlay.remainingCount(levelRank) > 0) return false;
+      if (score < 100 && memForPlay.smallJokersLeft() > 0) return false;
+      if (score < 200 && memForPlay.bigJokersLeft() > 0) return false;
+      return true;
+    };
+    const safePlays = effectiveNonBomb.filter((p) =>
+      p.classified.type === 'single' && isSafeSingle(p.classified.score),
+    );
+    const chosen = safePlays.length > 0 ? safePlays : effectiveNonBomb;
+    const minScore = chosen.reduce((min, p) =>
       p.classified.score < min.classified.score ? p : min,
     );
     return { type: 'play', cards: minScore.cards };
