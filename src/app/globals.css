@@ -130,7 +130,7 @@
   --card-overlap-mobile: -1.2rem;
   --hand-scale: 1.2;
   --my-hand-scale: 2.0;
-  --hand-scale-mobile: 1.0;
+  --hand-scale-mobile: 0.9;
   --player-offset-left: 0rem;
   --player-offset-right: 0rem;
 }
