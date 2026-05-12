@@ -411,7 +411,7 @@ export default function RoomPage() {
         </div>
 
         {/* ======= 牌桌 ======= */}
-        <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 py-0.5 sm:py-1 flex-1 flex flex-col">
+        <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-0.5 sm:pt-1 flex-1 flex flex-col">
           <div className="poker-table-bg poker-table-border flex-1 flex flex-col overflow-hidden relative">
 
             <DealAnimation
@@ -466,7 +466,7 @@ export default function RoomPage() {
             <div className="flex flex-col items-center pt-4 pb-0 mt-auto">
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} showCount={true} />
-              <div className="w-full max-w-4xl px-0 hidden sm:block mt-2" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-4xl px-0 hidden sm:block mt-2 -mb-4" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
