@@ -119,13 +119,17 @@ export default function RoomPage() {
 
   // 手机横屏自动旋转
   useEffect(() => {
-    const mql = window.matchMedia('(max-width: 1023px) and (orientation: landscape)');
-    const handler = (e: MediaQueryListEvent | MediaQueryList) => {
-      document.documentElement.classList.toggle('is-landscape', e.matches);
+    const check = () => {
+      const isLandscape = window.innerWidth <= 1023 && window.innerWidth > window.innerHeight;
+      document.documentElement.classList.toggle('is-landscape', isLandscape);
     };
-    handler(mql);
-    mql.addEventListener('change', handler);
-    return () => mql.removeEventListener('change', handler);
+    check();
+    window.addEventListener('resize', check);
+    window.addEventListener('orientationchange', check);
+    return () => {
+      window.removeEventListener('resize', check);
+      window.removeEventListener('orientationchange', check);
+    };
   }, []);
 
   // 暴露 store 到 window（供 E2E 测试访问）
