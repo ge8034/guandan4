@@ -429,7 +429,7 @@ export default function RoomPage() {
             </div>
 
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
-            <div className="flex items-center justify-between flex-1 px-0 gap-0">
+            <div className="flex items-center justify-center flex-1 px-0 gap-4">
               {/* 左：上家 — 牌背贴边，整区向中间靠，距出牌区1牌面 */}
               <div className="hidden sm:flex items-center self-stretch shrink-0">
                 <CardBacks count={hands[shangjiaSeat]?.length || 0} />
