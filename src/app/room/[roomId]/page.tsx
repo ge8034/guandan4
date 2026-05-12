@@ -24,7 +24,7 @@ import type { GameEvent } from '@/lib/supabase/realtime';
 
 const playerNames = ['牌神', '掼蛋高手', '扑克达人', '我'];
 
-/** 牌背：显示对手手牌数量 */
+/** 牌背：显示对手手牌数量，蓝色底与绿桌面区分 */
 function CardBacks({ count }: { count: number }) {
   if (count === 0) return null;
   return (
@@ -32,8 +32,10 @@ function CardBacks({ count }: { count: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="shrink-0"
           style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: i }}>
-          <div className="w-11 h-16 rounded-md border-2 border-card-border bg-accent/15 flex items-center justify-center">
-            <div className="w-7 h-10 rounded border border-accent/25 bg-accent/10" />
+          <div className="w-11 h-16 rounded-md border-2 border-blue-400/60 bg-blue-600/40 flex items-center justify-center shadow-sm">
+            <div className="w-7 h-10 rounded border border-blue-300/40 bg-blue-500/25 flex items-center justify-center">
+              <span className="text-blue-200/60 text-[10px] font-bold">🂠</span>
+            </div>
           </div>
         </div>
       ))}
