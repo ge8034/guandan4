@@ -385,12 +385,59 @@ p, li {
   animation: breathe 2s ease-in-out infinite;
 }
 
-/* 手机横屏模式：重新布局不缩小 */
+/* ====== 手机横屏模式 ====== */
 [data-landscape] {
-  --my-hand-scale: 1.0;
+  --card-width: 2.5rem;
+  --card-height: 3.75rem;
+  --card-overlap: -1rem;
+  --card-overlap-mobile: -0.8rem;
+  --my-hand-scale: 0.7;
+  --hand-scale: 0.6;
 }
-[data-landscape] .pt-1 { padding-top: 0.15rem; }
-[data-landscape] .pb-1 { padding-bottom: 0.15rem; }
-[data-landscape] .poker-table-bg { min-height: unset; }
-/* 操作栏更紧凑 */
-[data-landscape] .glass-dark { padding-top: 0rem; padding-bottom: 0rem; }
+/* 表格用横向布局 */
+[data-landscape] .poker-table-bg {
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  min-height: unset !important;
+  padding: 0.25rem;
+}
+/* 上方对家：移到右侧竖排 */
+[data-landscape] .flex.flex-col.items-center.pt-1 {
+  order: 3;
+  padding-top: 0;
+  min-width: 3rem;
+}
+/* 中间行：左/中/右 */
+[data-landscape] .flex.items-center.justify-center.flex-1 {
+  order: 2;
+  flex: 1;
+  min-height: unset;
+}
+[data-landscape] .flex.items-center.justify-center.min-h-\[160px\] {
+  min-height: 100px !important;
+}
+/* 下方手牌：底部全宽 */
+[data-landscape] .flex.flex-col.items-center.pb-0.mt-auto {
+  order: 4;
+  width: 100%;
+  padding-top: 0.25rem;
+}
+/* 紧凑操作栏 */
+[data-landscape] .glass-dark {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+[data-landscape] .glass-dark button {
+  padding-top: 0.2rem !important;
+  padding-bottom: 0.2rem !important;
+  font-size: 0.7rem;
+}
+/* Scoreboard 压缩 */
+[data-landscape] .mx-auto.w-full.max-w-7xl.px-1 {
+  padding-top: 0.1rem !important;
+}
+/* PlayerSeat 缩小间距 */
+[data-landscape] .PlayerSeat {
+  padding: 0.15rem 0.5rem !important;
+  gap: 0.1rem !important;
+}
