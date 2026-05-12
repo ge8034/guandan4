@@ -396,16 +396,7 @@ export default function RoomPage() {
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 flex flex-col">
         <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-1 sm:pt-2">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex-1"><Scoreboard /></div>
-            {/* 手机端横屏/竖屏切换 */}
-            <button
-              onClick={() => setWideMode(!wideMode)}
-              className="md:hidden shrink-0 px-3 py-1.5 text-xs rounded-lg border border-accent/40 text-accent-light bg-accent/10 hover:bg-accent/20 transition-colors font-medium"
-            >
-              {wideMode ? '竖屏' : '横屏'}
-            </button>
-          </div>
+          <Scoreboard />
           <div className="mt-1">
             <GameStatusBar
             status={phase === 'finished' ? 'finished' : 'playing'}
@@ -423,6 +414,13 @@ export default function RoomPage() {
         {/* ======= 牌桌 ======= */}
         <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-0.5 sm:pt-1 flex-1 flex flex-col">
           <div className={`poker-table-bg poker-table-border flex-1 flex flex-col overflow-hidden relative ${wideMode ? 'force-wide' : ''}`}>
+            {/* 横屏切换按钮 — 桌面右上角 */}
+            <button
+              onClick={() => setWideMode(!wideMode)}
+              className="md:hidden absolute top-2 right-2 z-20 px-2 py-1 text-xs rounded-lg border border-white/30 text-white/60 bg-black/20 hover:bg-black/40 transition-colors"
+            >
+              {wideMode ? '竖屏' : '横屏'}
+            </button>
 
             <DealAnimation
               play={dealAnimation}
