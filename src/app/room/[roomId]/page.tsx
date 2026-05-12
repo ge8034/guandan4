@@ -88,6 +88,16 @@ export default function RoomPage() {
   const [dealAnimation, setDealAnimation] = useState(false);
   const prevPhaseRef = useRef<GamePhase>(phase);
   const reportedRef = useRef<Set<number>>(new Set());
+  const speechWarmedRef = useRef(false);
+
+  // 首次用户交互时预热语音 API（浏览器要求用户手势后才能播放语音）
+  const warmupSpeech = () => {
+    if (speechWarmedRef.current) return;
+    speechWarmedRef.current = true;
+    const u = new SpeechSynthesisUtterance('');
+    u.volume = 0;
+    speechSynthesis.speak(u);
+  };
 
   // 暴露 store 到 window（供 E2E 测试访问）
   if (typeof window !== 'undefined') (window as any).__gameStore = useGameStore;
@@ -210,6 +220,7 @@ export default function RoomPage() {
   const handleCardClick = useCallback(
     (index: number) => {
       if (currentSeat !== effectiveMySeat) return;
+      warmupSpeech();
       sound.playSelect();
 
       // 检查是否属于锁定组：通过牌对象引用匹配

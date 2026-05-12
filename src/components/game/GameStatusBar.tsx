@@ -41,14 +41,17 @@ export function GameStatusBar({
   reportNames,
 }: GameStatusBarProps) {
   // 语音播报报牌
+  const reportKey = reportNames?.join(',') || '';
   useEffect(() => {
-    if (!reportNames || reportNames.length === 0) return;
-    const msg = `${reportNames.join('、')}报牌`;
-    const utterance = new SpeechSynthesisUtterance(msg);
+    if (!reportKey) return;
+    // 浏览器首次语音需要用户交互，预热一次
+    const utterance = new SpeechSynthesisUtterance(`${reportNames!.join('、')}报牌`);
     utterance.lang = 'zh-CN';
     utterance.rate = 0.9;
+    // 如果 speechSynthesis 处于暂停状态，先取消再说话
+    speechSynthesis.cancel();
     speechSynthesis.speak(utterance);
-  }, [reportNames]);
+  }, [reportKey]);
 
   return (
     <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-2.5 glass-dark text-white rounded-lg">
