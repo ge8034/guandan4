@@ -430,13 +430,11 @@ export default function RoomPage() {
 
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
             <div className="flex items-center justify-center flex-1 px-0 gap-4">
-              {/* 左：上家 — 牌背贴边，整区向中间靠，距出牌区1牌面 */}
-              <div className="hidden sm:flex items-center self-stretch shrink-0">
+              {/* 左：上家 */}
+              <div className="hidden sm:flex items-center self-stretch shrink-0 gap-2">
                 <CardBacks count={hands[shangjiaSeat]?.length || 0} />
-                <div className="-ml-2 mr-11 z-10">
-                  <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
-                    isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} />
-                </div>
+                <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
+                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} />
               </div>
 
               {/* 移动端上家(简化为仅座位) */}
@@ -446,7 +444,7 @@ export default function RoomPage() {
               </div>
 
               {/* 中：牌桌出牌区 */}
-              <div className="flex-1 flex items-center justify-center min-h-[160px] sm:min-h-[200px]">
+              <div className="flex items-center justify-center min-h-[160px] sm:min-h-[200px] px-11">
                 <TableArea recentTurns={recentTurns.slice(0, 2)} currentTurnSeat={currentSeat} effectiveMySeat={effectiveMySeat} lastPlay={lastPlay} />
               </div>
 
@@ -456,12 +454,10 @@ export default function RoomPage() {
                   isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
               </div>
 
-              {/* 右：下家 — 牌背贴边，整区向中间靠，距出牌区1牌面 */}
-              <div className="hidden sm:flex items-center self-stretch shrink-0">
-                <div className="-mr-2 ml-11 z-10">
-                  <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
-                    isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} />
-                </div>
+              {/* 右：下家 */}
+              <div className="hidden sm:flex items-center self-stretch shrink-0 gap-2">
+                <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
+                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} />
                 <CardBacks count={hands[xiajiaSeat]?.length || 0} />
               </div>
             </div>
