@@ -466,7 +466,7 @@ export default function RoomPage() {
             <div className="flex flex-col items-center pt-4 pb-0 mt-auto">
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} showCount={true} />
-              <div className="w-full max-w-4xl px-0 hidden sm:block mt-2 -mb-4" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-4xl px-0 hidden sm:block mt-1 -mb-5" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
