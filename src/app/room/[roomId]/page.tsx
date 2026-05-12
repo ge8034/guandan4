@@ -430,10 +430,10 @@ export default function RoomPage() {
 
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
             <div className="flex items-center justify-between flex-1 px-0 gap-0">
-              {/* 左：上家 — 牌背距边1牌面，座位距出牌区1牌面 */}
-              <div className="hidden sm:flex items-center self-stretch shrink-0 ml-2">
+              {/* 左：上家 — 牌背贴边，整区向中间靠，距出牌区1牌面 */}
+              <div className="hidden sm:flex items-center self-stretch shrink-0">
                 <CardBacks count={hands[shangjiaSeat]?.length || 0} />
-                <div className="-ml-3 mr-11 z-10">
+                <div className="-ml-2 mr-11 z-10">
                   <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
                     isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} />
                 </div>
@@ -456,9 +456,9 @@ export default function RoomPage() {
                   isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
               </div>
 
-              {/* 右：下家 — 牌背距边1牌面，座位距出牌区1牌面 */}
-              <div className="hidden sm:flex items-center self-stretch shrink-0 mr-2">
-                <div className="-mr-3 ml-11 z-10">
+              {/* 右：下家 — 牌背贴边，整区向中间靠，距出牌区1牌面 */}
+              <div className="hidden sm:flex items-center self-stretch shrink-0">
+                <div className="-mr-2 ml-11 z-10">
                   <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
                     isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} />
                 </div>
