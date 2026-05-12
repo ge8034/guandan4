@@ -396,3 +396,8 @@ p, li {
     margin-bottom: -0.5rem;
   }
 }
+
+/* 横屏切换按钮：强制桌面布局 */
+.force-wide .sm\:hidden { display: none !important; }
+.force-wide .hidden.sm\:block { display: block !important; }
+.force-wide .hidden.sm\:flex { display: flex !important; }

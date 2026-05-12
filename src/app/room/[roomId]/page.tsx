@@ -107,6 +107,7 @@ export default function RoomPage() {
   const prevPhaseRef = useRef<GamePhase>(phase);
   const reportedRef = useRef<Set<number>>(new Set());
   const speechWarmedRef = useRef(false);
+  const [wideMode, setWideMode] = useState(false);
 
   // 首次用户交互时预热语音 API（浏览器要求用户手势后才能播放语音）
   const warmupSpeech = () => {
@@ -395,7 +396,16 @@ export default function RoomPage() {
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 flex flex-col">
         <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-1 sm:pt-2">
-          <Scoreboard />
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1"><Scoreboard /></div>
+            {/* 手机端横屏/竖屏切换 */}
+            <button
+              onClick={() => setWideMode(!wideMode)}
+              className="sm:hidden shrink-0 px-2 py-1 text-[10px] rounded border border-white/20 text-white/50 hover:text-white hover:border-white/40 transition-colors"
+            >
+              {wideMode ? '竖屏' : '横屏'}
+            </button>
+          </div>
           <div className="mt-1">
             <GameStatusBar
             status={phase === 'finished' ? 'finished' : 'playing'}
@@ -412,7 +422,7 @@ export default function RoomPage() {
 
         {/* ======= 牌桌 ======= */}
         <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-0.5 sm:pt-1 flex-1 flex flex-col">
-          <div className="poker-table-bg poker-table-border flex-1 flex flex-col overflow-hidden relative">
+          <div className={`poker-table-bg poker-table-border flex-1 flex flex-col overflow-hidden relative ${wideMode ? 'force-wide' : ''}`}>
 
             <DealAnimation
               play={dealAnimation}
