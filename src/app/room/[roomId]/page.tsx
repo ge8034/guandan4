@@ -87,6 +87,7 @@ export default function RoomPage() {
   const [initializing, setInitializing] = useState(true);
   const [dealAnimation, setDealAnimation] = useState(false);
   const prevPhaseRef = useRef<GamePhase>(phase);
+  const reportedRef = useRef<Set<number>>(new Set());
 
   // 暴露 store 到 window（供 E2E 测试访问）
   if (typeof window !== 'undefined') (window as any).__gameStore = useGameStore;
@@ -337,6 +338,21 @@ export default function RoomPage() {
     );
   }, []);
 
+  // 报牌：手牌 ≤ 7 张时公开数量并播报一次
+  const handSizes = hands.map((h) => h.length);
+  const showCount = (seat: number) => handSizes[seat] <= 7;
+  const reportNames = playerNames.filter((_, i) => {
+    if (handSizes[i] > 7 || handSizes[i] === 0) return false;
+    if (reportedRef.current.has(i)) return false;
+    reportedRef.current.add(i);
+    return true;
+  });
+
+  // 新一局重置报牌状态
+  useEffect(() => {
+    reportedRef.current = new Set();
+  }, [roundNumber]);
+
   if (initializing || phase === 'idle' || !connected) {
     return <RoomSkeleton />;
   }
@@ -360,6 +376,7 @@ export default function RoomPage() {
             roomName="联网对局"
             hasTribute={!!tributeInfo}
             resistCount={tributeInfo?.resistSeats?.length || 0}
+            reportNames={reportNames.length > 0 ? reportNames : undefined}
           />
           </div>
         </div>
@@ -386,7 +403,7 @@ export default function RoomPage() {
                 </div>
               </div>
               <PlayerSeat name={playerNames[duijiaSeat]} cardCount={hands[duijiaSeat]?.length || 0}
-                isOnline={true} isCurrentTurn={currentSeat === duijiaSeat} isMe={false} />
+                isOnline={true} isCurrentTurn={currentSeat === duijiaSeat} isMe={false} showCount={showCount(duijiaSeat)} />
             </div>
 
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
@@ -410,7 +427,7 @@ export default function RoomPage() {
               {/* 移动端上家(简化为仅座位) */}
               <div className="sm:hidden flex items-center self-stretch shrink-0">
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} />
+                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)} />
               </div>
 
               {/* 中：牌桌出牌区 */}
@@ -421,7 +438,7 @@ export default function RoomPage() {
               {/* 移动端下家(简化为仅座位) */}
               <div className="sm:hidden flex items-center self-stretch shrink-0">
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} />
+                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
               </div>
 
               {/* 右：下家 */}
@@ -444,7 +461,7 @@ export default function RoomPage() {
             {/* 下方：人类 */}
             <div className="flex flex-col items-center pb-1">
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
-                isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} />
+                isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} showCount={true} />
               <div className="w-full max-w-4xl px-0 hidden sm:block" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}

@@ -8,6 +8,7 @@ interface GameStatusBarProps {
   roomName: string;
   hasTribute?: boolean;
   resistCount?: number;
+  reportNames?: string[];
 }
 
 const statusLabels: Record<string, string> = {
@@ -27,6 +28,8 @@ const levelRanks: Record<number, string> = {
   8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q', 13: 'K', 1: 'A',
 };
 
+import { useEffect } from 'react';
+
 export function GameStatusBar({
   status,
   levelRank,
@@ -35,7 +38,18 @@ export function GameStatusBar({
   roomName,
   hasTribute,
   resistCount = 0,
+  reportNames,
 }: GameStatusBarProps) {
+  // 语音播报报牌
+  useEffect(() => {
+    if (!reportNames || reportNames.length === 0) return;
+    const msg = `${reportNames.join('、')}报牌`;
+    const utterance = new SpeechSynthesisUtterance(msg);
+    utterance.lang = 'zh-CN';
+    utterance.rate = 0.9;
+    speechSynthesis.speak(utterance);
+  }, [reportNames]);
+
   return (
     <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-2.5 glass-dark text-white rounded-lg">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -43,6 +57,11 @@ export function GameStatusBar({
           {roomName}
         </span>
         <Badge variant={statusVariants[status]}>{statusLabels[status]}</Badge>
+        {reportNames && reportNames.length > 0 && (
+          <Badge variant="warning">
+            {reportNames.join('、')} 报牌
+          </Badge>
+        )}
         {hasTribute && (
           <Badge variant="accent">
             {resistCount > 0 ? `抗贡×${resistCount}` : '已进贡'}

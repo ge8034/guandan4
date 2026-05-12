@@ -6,6 +6,7 @@ interface PlayerSeatProps {
   isOnline: boolean;
   isCurrentTurn: boolean;
   isMe: boolean;
+  showCount?: boolean;
 }
 
 export function PlayerSeat({
@@ -14,6 +15,7 @@ export function PlayerSeat({
   isOnline,
   isCurrentTurn,
   isMe,
+  showCount,
 }: PlayerSeatProps) {
   return (
     <div
@@ -30,8 +32,11 @@ export function PlayerSeat({
         {name}
       </span>
       <span className="text-xs text-white/40">
-        {cardCount} 张
+        {isMe || showCount ? `${cardCount} 张` : '? 张'}
       </span>
+      {showCount && !isMe && (
+        <span className="text-[10px] text-amber-300/80">报牌</span>
+      )}
       {isCurrentTurn && (
         <span className="flex items-center gap-1 text-xs text-accent-light font-medium">
           <span className="breathe-dot" />
