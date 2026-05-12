@@ -131,6 +131,7 @@
   --hand-scale: 1.2;
   --my-hand-scale: 2.0;
   --hand-scale-mobile: 1.0;
+  --hand-scale-landscape: 0.85;
   --player-offset-left: 0rem;
   --player-offset-right: 0rem;
 }
@@ -383,4 +384,15 @@ p, li {
   border-radius: 50%;
   background: var(--color-accent-light);
   animation: breathe 2s ease-in-out infinite;
+}
+
+/* 手机横屏 */
+@media (max-width: 1023px) and (orientation: landscape) {
+  :root {
+    --hand-scale-mobile: var(--hand-scale-landscape);
+  }
+  .landscape-hand {
+    padding-bottom: 0.5rem;
+    margin-bottom: -0.5rem;
+  }
 }
