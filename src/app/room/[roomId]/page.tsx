@@ -24,13 +24,20 @@ import type { GameEvent } from '@/lib/supabase/realtime';
 
 const playerNames = ['牌神', '掼蛋高手', '扑克达人', '我'];
 
-/** 牌背：每个对手只显示一张牌背 */
+/** 牌背：蓝底白格纹居中 */
+const CARD_BACK = 'bg-blue-700 rounded-md w-11 h-16 border-2 border-blue-300 shadow-sm flex items-center justify-center';
+const CARD_INNER = 'w-8 h-12 rounded border border-blue-400/50 flex items-center justify-center bg-blue-600';
+
 function CardBacks({ count }: { count: number }) {
   if (count === 0) return null;
   return (
-    <div className="w-11 h-16 rounded-md border-2 border-blue-400 bg-blue-600 flex items-center justify-center shadow-sm">
-      <div className="w-7 h-10 rounded border border-blue-300 bg-blue-500 flex items-center justify-center">
-        <span className="text-blue-200 text-[10px] font-bold">🂠</span>
+    <div className={CARD_BACK}>
+      <div className={CARD_INNER}>
+        <svg viewBox="0 0 24 24" className="w-5 h-5 text-blue-300/70">
+          <rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1" />
+          <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+        </svg>
       </div>
     </div>
   );
