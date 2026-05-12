@@ -131,7 +131,6 @@
   --hand-scale: 1.2;
   --my-hand-scale: 2.0;
   --hand-scale-mobile: 1.0;
-  --hand-scale-landscape: 0.85;
   --player-offset-left: 0rem;
   --player-offset-right: 0rem;
 }
@@ -386,18 +385,12 @@ p, li {
   animation: breathe 2s ease-in-out infinite;
 }
 
-/* 手机横屏 */
-@media (max-width: 1023px) and (orientation: landscape) {
-  :root {
-    --hand-scale-mobile: var(--hand-scale-landscape);
-  }
-  .landscape-hand {
-    padding-bottom: 0.5rem;
-    margin-bottom: -0.5rem;
-  }
+/* 手机横屏模式：重新布局不缩小 */
+[data-landscape] {
+  --my-hand-scale: 1.0;
 }
-
-/* 横屏切换按钮：强制桌面布局 */
-.force-wide .sm\:hidden { display: none !important; }
-.force-wide .hidden.sm\:block { display: block !important; }
-.force-wide .hidden.sm\:flex { display: flex !important; }
+[data-landscape] .pt-1 { padding-top: 0.15rem; }
+[data-landscape] .pb-1 { padding-bottom: 0.15rem; }
+[data-landscape] .poker-table-bg { min-height: unset; }
+/* 操作栏更紧凑 */
+[data-landscape] .glass-dark { padding-top: 0rem; padding-bottom: 0rem; }

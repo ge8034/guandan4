@@ -394,7 +394,7 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" data-landscape={wideMode || undefined}>
       <main className="flex-1 flex flex-col">
         <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-1 sm:pt-2">
           <Scoreboard />
@@ -483,7 +483,7 @@ export default function RoomPage() {
                   onCardClick={handleCardClick} />
               </div>
               {/* 移动端手牌 */}
-              <div className={`w-full max-w-4xl px-0 mt-0 -mb-4 landscape-hand ${showDesktop ? 'hidden' : 'sm:hidden'}`} style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
+              <div className={`w-full max-w-4xl px-0 mt-0 -mb-4 ${showDesktop ? 'hidden' : 'sm:hidden'}`} style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
