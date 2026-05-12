@@ -131,8 +131,8 @@
   --hand-scale: 1.2;
   --my-hand-scale: 1.2;
   --hand-scale-mobile: 1.0;
-  --player-offset-left: -7.25rem;
-  --player-offset-right: -6.875rem;
+  --player-offset-left: 0rem;
+  --player-offset-right: 0rem;
 }
 
 /* === 全局基础样式 === */
