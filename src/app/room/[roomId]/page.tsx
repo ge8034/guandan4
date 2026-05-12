@@ -464,7 +464,6 @@ export default function RoomPage() {
                 </div>
                 <CardBacks count={hands[xiajiaSeat]?.length || 0} />
               </div>
-              </div>
             </div>
 
             {/* 下方：人类 */}
