@@ -434,7 +434,7 @@ export default function RoomPage() {
               <div className="hidden sm:flex items-center self-stretch shrink-0 gap-2">
                 <CardBacks count={hands[shangjiaSeat]?.length || 0} />
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} />
+                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)} />
               </div>
 
               {/* 移动端上家(简化为仅座位) */}
@@ -457,7 +457,7 @@ export default function RoomPage() {
               {/* 右：下家 */}
               <div className="hidden sm:flex items-center self-stretch shrink-0 gap-2">
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} />
+                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
                 <CardBacks count={hands[xiajiaSeat]?.length || 0} />
               </div>
             </div>
