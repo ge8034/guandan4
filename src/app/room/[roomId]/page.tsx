@@ -430,12 +430,12 @@ export default function RoomPage() {
 
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
             <div className="flex items-center justify-between flex-1 px-0 gap-0">
-              {/* 左：上家 */}
-              <div className="hidden sm:flex items-center self-stretch shrink-0" style={{ marginLeft: 'var(--player-offset-left)' }}>
-                <div className="flex gap-0 min-w-max my-auto" style={{ transform: 'rotate(90deg) scale(var(--hand-scale))', transformOrigin: 'center center' }}>
+              {/* 左：上家 — 牌背贴边，座位靠中间 */}
+              <div className="hidden sm:flex items-center self-stretch shrink-0">
+                <div className="flex gap-0 min-w-max my-auto">
                   <CardBacks count={hands[shangjiaSeat]?.length || 0} />
                 </div>
-                <div className="flex flex-col items-center ml-0.5">
+                <div className="flex flex-col items-center -ml-3 z-10">
                   <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
                     isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} />
                 </div>
@@ -458,13 +458,13 @@ export default function RoomPage() {
                   isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
               </div>
 
-              {/* 右：下家 */}
-              <div className="hidden sm:flex items-center self-stretch shrink-0" style={{ marginRight: 'var(--player-offset-right)' }}>
-                <div className="flex flex-col items-center mr-0.5">
+              {/* 右：下家 — 牌背贴边，座位靠中间 */}
+              <div className="hidden sm:flex items-center self-stretch shrink-0">
+                <div className="flex flex-col items-center -mr-3 z-10">
                   <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
                     isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} />
                 </div>
-                <div className="flex gap-0 min-w-max my-auto" style={{ transform: 'rotate(-90deg) scale(var(--hand-scale))', transformOrigin: 'center center' }}>
+                <div className="flex gap-0 min-w-max my-auto">
                   <CardBacks count={hands[xiajiaSeat]?.length || 0} />
                 </div>
               </div>
