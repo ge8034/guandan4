@@ -24,6 +24,23 @@ import type { GameEvent } from '@/lib/supabase/realtime';
 
 const playerNames = ['牌神', '掼蛋高手', '扑克达人', '我'];
 
+/** 牌背：显示对手手牌数量 */
+function CardBacks({ count }: { count: number }) {
+  if (count === 0) return null;
+  return (
+    <div className="flex gap-0 min-w-max px-1">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="shrink-0"
+          style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: i }}>
+          <div className="w-11 h-16 rounded-md border-2 border-card-border bg-accent/15 flex items-center justify-center">
+            <div className="w-7 h-10 rounded border border-accent/25 bg-accent/10" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** 紧凑 AI 手牌行（横向） */
 function CompactHand({ cards, levelRank }: { cards: Card[]; levelRank?: number }) {
   if (!cards || cards.length === 0) return null;
@@ -404,14 +421,7 @@ export default function RoomPage() {
             {/* 上方：对家 */}
             <div className="flex flex-col items-center pt-1">
               <div className="overflow-x-auto max-w-full hidden sm:block" style={handScaleStyle}>
-                <div className="flex gap-0 min-w-max justify-center px-1">
-                  {hands[duijiaSeat]?.map((card, i) => (
-                    <div key={i} className="shrink-0 rotate-180"
-                      style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: i }}>
-                      <PlayingCard card={card} size="md" />
-                    </div>
-                  ))}
-                </div>
+                <CardBacks count={hands[duijiaSeat]?.length || 0} />
               </div>
               <PlayerSeat name={playerNames[duijiaSeat]} cardCount={hands[duijiaSeat]?.length || 0}
                 isOnline={true} isCurrentTurn={currentSeat === duijiaSeat} isMe={false} showCount={showCount(duijiaSeat)} />
@@ -422,12 +432,7 @@ export default function RoomPage() {
               {/* 左：上家 */}
               <div className="hidden sm:flex items-center self-stretch shrink-0" style={{ marginLeft: 'var(--player-offset-left)' }}>
                 <div className="flex gap-0 min-w-max my-auto" style={{ transform: 'rotate(90deg) scale(var(--hand-scale))', transformOrigin: 'center center' }}>
-                  {hands[shangjiaSeat]?.map((card, i) => (
-                    <div key={i} className="shrink-0 -rotate-90"
-                      style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: i }}>
-                      <PlayingCard card={card} size="md" />
-                    </div>
-                  ))}
+                  <CardBacks count={hands[shangjiaSeat]?.length || 0} />
                 </div>
                 <div className="flex flex-col items-center ml-0.5">
                   <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
@@ -459,12 +464,7 @@ export default function RoomPage() {
                     isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} />
                 </div>
                 <div className="flex gap-0 min-w-max my-auto" style={{ transform: 'rotate(-90deg) scale(var(--hand-scale))', transformOrigin: 'center center' }}>
-                  {hands[xiajiaSeat]?.map((card, i) => (
-                    <div key={i} className="shrink-0 rotate-90"
-                      style={{ marginLeft: i > 0 ? 'var(--card-overlap)' : '0', zIndex: (hands[xiajiaSeat]?.length || 0) - i }}>
-                      <PlayingCard card={card} size="md" />
-                    </div>
-                  ))}
+                  <CardBacks count={hands[xiajiaSeat]?.length || 0} />
                 </div>
               </div>
             </div>
