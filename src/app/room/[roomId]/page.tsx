@@ -401,7 +401,7 @@ export default function RoomPage() {
             {/* 手机端横屏/竖屏切换 */}
             <button
               onClick={() => setWideMode(!wideMode)}
-              className="sm:hidden shrink-0 px-2 py-1 text-[10px] rounded border border-white/20 text-white/50 hover:text-white hover:border-white/40 transition-colors"
+              className="md:hidden shrink-0 px-3 py-1.5 text-xs rounded-lg border border-accent/40 text-accent-light bg-accent/10 hover:bg-accent/20 transition-colors font-medium"
             >
               {wideMode ? '竖屏' : '横屏'}
             </button>
