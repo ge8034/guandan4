@@ -24,19 +24,18 @@ import type { GameEvent } from '@/lib/supabase/realtime';
 
 const playerNames = ['牌神', '掼蛋高手', '扑克达人', '我'];
 
-/** 牌背：蓝底白格纹居中 */
-const CARD_BACK = 'bg-blue-700 rounded-md w-11 h-16 border-2 border-blue-300 shadow-sm flex items-center justify-center';
-const CARD_INNER = 'w-8 h-12 rounded border border-blue-400/50 flex items-center justify-center bg-blue-600';
-
+/** 牌背：完全不透明蓝底+十字星图案 */
 function CardBacks({ count }: { count: number }) {
   if (count === 0) return null;
   return (
-    <div className={CARD_BACK}>
-      <div className={CARD_INNER}>
-        <svg viewBox="0 0 24 24" className="w-5 h-5 text-blue-300/70">
-          <rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1" />
-          <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+    <div className="w-11 h-16 rounded-md shadow-sm flex items-center justify-center shrink-0"
+      style={{ backgroundColor: '#1d4ed8', border: '2px solid #3b82f6' }}>
+      <div className="w-8 h-12 rounded flex items-center justify-center"
+        style={{ backgroundColor: '#2563eb', border: '1px solid rgba(147,197,253,0.5)' }}>
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="#93c5fd" strokeWidth="1.5" />
+          <line x1="12" y1="5" x2="12" y2="19" stroke="#93c5fd" strokeWidth="1" />
+          <line x1="5" y1="12" x2="19" y2="12" stroke="#93c5fd" strokeWidth="1" />
         </svg>
       </div>
     </div>
