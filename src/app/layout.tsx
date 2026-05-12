@@ -1,24 +1,12 @@
 import type { Metadata } from 'next';
-import { Fredoka, Nunito } from 'next/font/google';
 import './globals.css';
 import { Navigation } from '@/components/layout/Navigation';
 import { Footer } from '@/components/layout/Footer';
 
-const fredoka = Fredoka({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-fredoka',
-});
-
-const nunito = Nunito({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-nunito',
-});
-
 export const metadata: Metadata = {
   title: 'GuanDan4',
   description: '经典掼蛋在线卡牌游戏',
+  icons: { icon: '/icons/icon-192.svg' },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -37,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-CN" className={`${fredoka.variable} ${nunito.variable}`}>
+    <html lang="zh-CN">
       <body className="min-h-screen bg-neutral-50 text-neutral-900 antialiased">
         <Navigation />
         <div className="min-h-[calc(100vh-3.5rem)]">{children}</div>
