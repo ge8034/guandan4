@@ -463,10 +463,10 @@ export default function RoomPage() {
             </div>
 
             {/* 下方：人类 */}
-            <div className="flex flex-col items-center pt-4 pb-0 mt-auto">
+            <div className="flex flex-col items-center pt-8 pb-0 mt-auto">
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} showCount={true} />
-              <div className="w-full max-w-4xl px-0 hidden sm:block mt-0 -mb-8" style={{ transform: 'scale(var(--my-hand-scale)) translateY(4px)', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-4xl px-0 hidden sm:block mt-0 -mb-12" style={{ transform: 'scale(var(--my-hand-scale)) translateY(8px)', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
@@ -474,7 +474,7 @@ export default function RoomPage() {
                   onCardClick={handleCardClick} />
               </div>
               {/* 移动端手牌 */}
-              <div className="w-full max-w-4xl px-0 sm:hidden mt-0 -mb-4" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-4xl px-0 sm:hidden mt-0 -mb-8" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
