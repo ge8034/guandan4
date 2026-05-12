@@ -241,35 +241,64 @@ function decideLead(
     if (oneShot) return { type: 'play', cards: oneShot.cards };
   }
 
-  // 同伴配合：队友快赢时优先出单张（最灵活，方便队友接牌）
+  // 同伴配合：根据队友剩余牌数精确喂牌
   if (context) {
     const teammateSeat = context.mySeat % 2 === 0 ? context.mySeat + 2 : context.mySeat - 2;
     if (teammateSeat >= 0 && teammateSeat < 4) {
-      const teammateCards = context.opponentHandSizes[teammateSeat];
-      if (teammateCards > 0 && teammateCards <= 4) {
-        // 队友手牌 ≤ 4：出单张让队友可以过牌或跟牌
-        const singlePlays = nonBombPlays.filter((p) => p.classified.type === 'single');
-        if (singlePlays.length > 0) {
-          const minSingle = singlePlays.reduce((min, p) =>
-            p.classified.score < min.classified.score ? p : min,
-          );
-          return { type: 'play', cards: minSingle.cards };
-        }
+      const tc = context.opponentHandSizes[teammateSeat];
+      if (tc === 1) {
+        // 队友剩1张：出最小单张必赢
+        const s = nonBombPlays.filter((p) => p.classified.type === 'single');
+        if (s.length > 0) { const m = s.reduce((a,b) => a.classified.score < b.classified.score ? a : b); return { type: 'play', cards: m.cards }; }
       }
-      // 队友手牌 5-8：优先出对子（清牌效率更高，队友也更容易接）
-      if (teammateCards >= 5 && teammateCards <= 8) {
-        const pairPlays = nonBombPlays.filter((p) => p.classified.type === 'pair');
-        if (pairPlays.length > 0) {
-          const minPair = pairPlays.reduce((min, p) =>
-            p.classified.score < min.classified.score ? p : min,
-          );
-          return { type: 'play', cards: minPair.cards };
-        }
+      if (tc === 2) {
+        // 队友剩2张：可能是对子或两张单→出最小单张或对子
+        const s = nonBombPlays.filter((p) => p.classified.type === 'single');
+        const p = nonBombPlays.filter((p) => p.classified.type === 'pair');
+        const all = [...s, ...p];
+        if (all.length > 0) { const m = all.reduce((a,b) => a.classified.score < b.classified.score ? a : b); return { type: 'play', cards: m.cards }; }
+      }
+      if (tc === 3) {
+        // 队友剩3张：出单张让队友灵活处理
+        const s = nonBombPlays.filter((p) => p.classified.type === 'single');
+        if (s.length > 0) { const m = s.reduce((a,b) => a.classified.score < b.classified.score ? a : b); return { type: 'play', cards: m.cards }; }
+      }
+      if (tc >= 4 && tc <= 6) {
+        // 队友手牌 4-6：优先出对子（清牌效率高）
+        const p = nonBombPlays.filter((p) => p.classified.type === 'pair');
+        if (p.length > 0) { const m = p.reduce((a,b) => a.classified.score < b.classified.score ? a : b); return { type: 'play', cards: m.cards }; }
+      }
+      if (tc >= 7 && tc <= 10) {
+        // 队友手牌 7-10：出三同或顺子帮队友清牌
+        const t = nonBombPlays.filter((p) => p.classified.type === 'triple' || p.classified.type === 'straight');
+        if (t.length > 0) { const m = t.reduce((a,b) => a.classified.score < b.classified.score ? a : b); return { type: 'play', cards: m.cards }; }
       }
     }
   }
 
-  // 出孤立牌（最小的单张）
+  // 手牌多(>15)时不先出大单张锁死 → 出最小单张
+  if (hand.length > 15) {
+    const smallSingles = nonBombPlays
+      .filter((p) => p.classified.type === 'single')
+      .sort((a, b) => a.classified.score - b.classified.score);
+    if (smallSingles.length > 0) return { type: 'play', cards: smallSingles[0].cards };
+  }
+
+  // 对手弱点：某个对手牌很少时不出他能接的牌型
+  if (context) {
+    const weakOpp = context.opponentHandSizes.findIndex(
+      (size, i) => i !== context!.mySeat && !sameTeam(context!.mySeat, i) && size > 0 && size <= 3
+    );
+    if (weakOpp !== -1) {
+      // 对手牌少→避免出单张（容易被接），优先出对子或三同
+      const p = nonBombPlays.filter((p) => p.classified.type === 'pair');
+      const t = nonBombPlays.filter((p) => p.classified.type === 'triple');
+      const prefer = [...p, ...t];
+      if (prefer.length > 0) { const m = prefer.reduce((a,b) => a.classified.score < b.classified.score ? a : b); return { type: 'play', cards: m.cards }; }
+    }
+  }
+
+  // 出孤立牌（最小的单张，已由 analysis 过滤出非对子/三同组件）
   const isolatedSingles = nonBombPlays.filter(
     (p) =>
       p.classified.type === 'single' &&
@@ -413,12 +442,20 @@ function decideFollow(
   const memory = getCardMemory();
   const opponentBombPossible = memory.bombPossible();
 
-  // d) 对手即将获胜 → 拦截
+  // d) 对手即将获胜 → 拦截（但队友快赢时不炸，让队友清牌）
   if (context) {
     const hasCloseOpponent = context.opponentHandSizes.some(
-      (size, i) => i !== context.mySeat && size > 0 && size <= 2,
+      (size, i) => i !== context.mySeat && size > 0 && size <= 2 && !sameTeam(context.mySeat, i),
     );
     if (hasCloseOpponent) return { type: 'play', cards: minBomb.cards };
+    // 对手出牌队友接不住且队友手牌多→炸弹截断保护队友
+    const mateSeat = context.mySeat % 2 === 0 ? context.mySeat + 2 : context.mySeat - 2;
+    if (mateSeat >= 0 && mateSeat < 4) {
+      const mateCards = context.opponentHandSizes[mateSeat];
+      if (mateCards >= 5 && context.lastPlaySeat !== undefined && !sameTeam(context.mySeat, context.lastPlaySeat)) {
+        return { type: 'play', cards: minBomb.cards };
+      }
+    }
   }
 
   // b) 手牌 ≤ 8 张且有火箭 → 火箭确保赢

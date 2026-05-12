@@ -97,7 +97,7 @@ describe('getTributeCard', () => {
     expect(result!.suit).toBe('diamond');
   });
 
-  it('多张相同最大值，返回其中一张', () => {
+  it('优先选孤立大牌不拆对子', () => {
     const hand: Card[] = [
       card(14, 'heart'),
       card(14, 'spade'),
@@ -105,7 +105,8 @@ describe('getTributeCard', () => {
     ];
     const result = getTributeCard(hand);
     expect(result).not.toBeNull();
-    expect(result!.value).toBe(14);
+    // 14 是对子不应拆，选孤立10
+    expect(result!.value).toBe(10);
   });
 
   it('所有牌都<10时返回null', () => {
