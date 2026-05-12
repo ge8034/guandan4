@@ -385,12 +385,17 @@ p, li {
   animation: breathe 2s ease-in-out infinite;
 }
 
-/* 手机横屏旋转 */
+/* 手机横屏自动旋转 */
 .is-landscape {
+  overflow: hidden;
+}
+.is-landscape body {
+  overflow: hidden;
+}
+.is-landscape #__next {
   position: fixed;
   top: 0; left: 0;
   width: 100vh; height: 100vw;
   transform: rotate(90deg) translateY(-100%);
   transform-origin: top left;
-  overflow: hidden;
 }
