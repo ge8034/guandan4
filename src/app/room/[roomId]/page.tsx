@@ -474,7 +474,7 @@ export default function RoomPage() {
                   onCardClick={handleCardClick} />
               </div>
               {/* 移动端手牌 */}
-              <div className="w-full max-w-4xl px-0 sm:hidden pb-12" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-4xl px-0 sm:hidden pb-24" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
