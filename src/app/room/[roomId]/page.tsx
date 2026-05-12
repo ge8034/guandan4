@@ -28,9 +28,9 @@ const playerNames = ['牌神', '掼蛋高手', '扑克达人', '我'];
 function CardBacks({ count }: { count: number }) {
   if (count === 0) return null;
   return (
-    <div className="w-11 h-16 rounded-md border-2 border-blue-400/60 bg-blue-600/40 flex items-center justify-center shadow-sm">
-      <div className="w-7 h-10 rounded border border-blue-300/40 bg-blue-500/25 flex items-center justify-center">
-        <span className="text-blue-200/60 text-[10px] font-bold">🂠</span>
+    <div className="w-11 h-16 rounded-md border-2 border-blue-400 bg-blue-600 flex items-center justify-center shadow-sm">
+      <div className="w-7 h-10 rounded border border-blue-300 bg-blue-500 flex items-center justify-center">
+        <span className="text-blue-200 text-[10px] font-bold">🂠</span>
       </div>
     </div>
   );
