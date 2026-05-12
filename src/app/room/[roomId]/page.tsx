@@ -107,8 +107,6 @@ export default function RoomPage() {
   const prevPhaseRef = useRef<GamePhase>(phase);
   const reportedRef = useRef<Set<number>>(new Set());
   const speechWarmedRef = useRef(false);
-  const [wideMode, setWideMode] = useState(false);
-  const showDesktop = wideMode; // 手机端横屏切换：true=桌面布局
 
   // 首次用户交互时预热语音 API（浏览器要求用户手势后才能播放语音）
   const warmupSpeech = () => {
@@ -394,7 +392,7 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" data-landscape={wideMode || undefined}>
+    <div className="min-h-screen flex flex-col">
       <main className="flex-1 flex flex-col">
         <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-1 sm:pt-2">
           <Scoreboard />
@@ -414,14 +412,7 @@ export default function RoomPage() {
 
         {/* ======= 牌桌 ======= */}
         <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-0.5 sm:pt-1 flex-1 flex flex-col">
-          <div className={`poker-table-bg poker-table-border flex-1 flex flex-col overflow-hidden relative ${wideMode ? 'force-wide' : ''}`}>
-            {/* 横屏切换按钮 — 桌面右上角 */}
-            <button
-              onClick={() => setWideMode(!wideMode)}
-              className="md:hidden absolute top-2 right-2 z-20 px-2 py-1 text-xs rounded-lg border border-white/30 text-white/60 bg-black/20 hover:bg-black/40 transition-colors"
-            >
-              {wideMode ? '竖屏' : '横屏'}
-            </button>
+          <div className="poker-table-bg poker-table-border flex-1 flex flex-col overflow-hidden relative">
 
             <DealAnimation
               play={dealAnimation}
@@ -430,7 +421,7 @@ export default function RoomPage() {
 
             {/* 上方：对家 */}
             <div className="flex flex-col items-center pt-1">
-              <div className={`overflow-x-auto max-w-full ${showDesktop ? 'block' : 'hidden sm:block'}`} style={handScaleStyle}>
+              <div className={`overflow-x-auto max-w-full hidden sm:block`} style={handScaleStyle}>
                 <CardBacks count={hands[duijiaSeat]?.length || 0} />
               </div>
               <PlayerSeat name={playerNames[duijiaSeat]} cardCount={hands[duijiaSeat]?.length || 0}
@@ -440,14 +431,14 @@ export default function RoomPage() {
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
             <div className="flex items-center justify-center flex-1 px-0 gap-4">
               {/* 左：上家 */}
-              <div className={`${showDesktop ? 'flex' : 'hidden sm:flex'} items-center self-stretch shrink-0 gap-2`}>
+              <div className={`hidden sm:flex items-center self-stretch shrink-0 gap-2`}>
                 <CardBacks count={hands[shangjiaSeat]?.length || 0} />
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)} />
               </div>
 
               {/* 移动端上家(简化为仅座位) */}
-              <div className={`${showDesktop ? 'hidden' : 'flex sm:hidden'} items-center self-stretch shrink-0`}>
+              <div className={`flex sm:hidden items-center self-stretch shrink-0`}>
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)} />
               </div>
@@ -458,13 +449,13 @@ export default function RoomPage() {
               </div>
 
               {/* 移动端下家(简化为仅座位) */}
-              <div className={`${showDesktop ? 'hidden' : 'flex sm:hidden'} items-center self-stretch shrink-0`}>
+              <div className={`flex sm:hidden items-center self-stretch shrink-0`}>
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
               </div>
 
               {/* 右：下家 */}
-              <div className={`${showDesktop ? 'flex' : 'hidden sm:flex'} items-center self-stretch shrink-0 gap-2`}>
+              <div className={`hidden sm:flex items-center self-stretch shrink-0 gap-2`}>
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
                 <CardBacks count={hands[xiajiaSeat]?.length || 0} />
@@ -475,7 +466,7 @@ export default function RoomPage() {
             <div className="flex flex-col items-center pt-4 pb-0 mt-auto">
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} showCount={true} />
-              <div className={`w-full max-w-4xl px-0 mt-0 -mb-6 ${showDesktop ? 'block' : 'hidden sm:block'}`} style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
+              <div className={`w-full max-w-4xl px-0 mt-0 -mb-6 hidden sm:block`} style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
@@ -483,7 +474,7 @@ export default function RoomPage() {
                   onCardClick={handleCardClick} />
               </div>
               {/* 移动端手牌 */}
-              <div className={`w-full max-w-4xl px-0 mt-0 -mb-4 ${showDesktop ? 'hidden' : 'sm:hidden'}`} style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-4xl px-0 mt-0 -mb-4 sm:hidden" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
