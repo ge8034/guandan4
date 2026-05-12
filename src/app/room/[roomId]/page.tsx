@@ -117,6 +117,17 @@ export default function RoomPage() {
     speechSynthesis.speak(u);
   };
 
+  // 手机横屏自动旋转
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 1023px) and (orientation: landscape)');
+    const handler = (e: MediaQueryListEvent | MediaQueryList) => {
+      document.documentElement.classList.toggle('is-landscape', e.matches);
+    };
+    handler(mql);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+
   // 暴露 store 到 window（供 E2E 测试访问）
   if (typeof window !== 'undefined') (window as any).__gameStore = useGameStore;
 

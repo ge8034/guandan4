@@ -385,21 +385,12 @@ p, li {
   animation: breathe 2s ease-in-out infinite;
 }
 
-/* ====== 手机横屏：锁定竖屏方向 ====== */
-@media (max-width: 1023px) and (orientation: landscape) {
-  html, body {
-    overflow: hidden;
-    height: 100%;
-    width: 100%;
-  }
-  /* 整体旋转90度适配横屏 */
-  #__next {
-    transform: rotate(-90deg);
-    transform-origin: top left;
-    width: 100vh;
-    height: 100vw;
-    position: absolute;
-    top: 100vw;
-    left: 0;
-  }
+/* 手机横屏旋转 */
+.is-landscape {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vh; height: 100vw;
+  transform: rotate(90deg) translateY(-100%);
+  transform-origin: top left;
+  overflow: hidden;
 }
