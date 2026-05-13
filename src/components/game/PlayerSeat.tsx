@@ -7,6 +7,7 @@ interface PlayerSeatProps {
   isCurrentTurn: boolean;
   isMe: boolean;
   showCount?: boolean;
+  isAiThinking?: boolean;
 }
 
 export function PlayerSeat({
@@ -16,6 +17,7 @@ export function PlayerSeat({
   isCurrentTurn,
   isMe,
   showCount,
+  isAiThinking = false,
 }: PlayerSeatProps) {
   return (
     <div
@@ -27,7 +29,17 @@ export function PlayerSeat({
           : 'bg-white/5',
       ].join(' ')}
     >
-      <Avatar name={name} size="md" online={isOnline} />
+      {isAiThinking ? (
+        <div className="relative inline-flex shrink-0">
+          <div
+            className="absolute -inset-[3px] rounded-full ring-2 ring-accent/50"
+            style={{ animation: 'breathe 1.5s ease-out infinite' }}
+          />
+          <Avatar name={name} size="md" online={isOnline} />
+        </div>
+      ) : (
+        <Avatar name={name} size="md" online={isOnline} />
+      )}
       <span className="text-xs font-medium text-white/80 truncate max-w-[5rem] sm:max-w-[6rem]">
         {name}
       </span>

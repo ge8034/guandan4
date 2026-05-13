@@ -459,7 +459,8 @@ export default function RoomPage() {
                 <CardBacks count={hands[duijiaSeat]?.length || 0} />
               </div>
               <PlayerSeat name={playerNames[duijiaSeat]} cardCount={hands[duijiaSeat]?.length || 0}
-                isOnline={true} isCurrentTurn={currentSeat === duijiaSeat} isMe={false} showCount={showCount(duijiaSeat)} />
+                isOnline={true} isCurrentTurn={currentSeat === duijiaSeat} isMe={false} showCount={showCount(duijiaSeat)}
+                isAiThinking={currentSeat === duijiaSeat && duijiaSeat !== effectiveMySeat && phase === 'playing'} />
             </div>
 
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
@@ -468,13 +469,15 @@ export default function RoomPage() {
               <div className="hidden sm:flex items-center self-stretch shrink-0 gap-2 landscape-left-player">
                 <CardBacks count={hands[shangjiaSeat]?.length || 0} />
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)} />
+                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)}
+                  isAiThinking={currentSeat === shangjiaSeat && shangjiaSeat !== effectiveMySeat && phase === 'playing'} />
               </div>
 
               {/* 移动端上家(简化为仅座位) */}
               <div className="flex sm:hidden items-center self-stretch shrink-0 landscape-left-player">
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)} />
+                  isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)}
+                  isAiThinking={currentSeat === shangjiaSeat && shangjiaSeat !== effectiveMySeat && phase === 'playing'} />
               </div>
 
               {/* 中：牌桌出牌区 */}
@@ -486,13 +489,15 @@ export default function RoomPage() {
               {/* 移动端下家(简化为仅座位) */}
               <div className="flex sm:hidden items-center self-stretch shrink-0 landscape-right-player">
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
+                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)}
+                  isAiThinking={currentSeat === xiajiaSeat && xiajiaSeat !== effectiveMySeat && phase === 'playing'} />
               </div>
 
               {/* 右：下家 */}
               <div className="hidden sm:flex items-center self-stretch shrink-0 gap-2 landscape-right-player">
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
-                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
+                  isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)}
+                  isAiThinking={currentSeat === xiajiaSeat && xiajiaSeat !== effectiveMySeat && phase === 'playing'} />
                 <CardBacks count={hands[xiajiaSeat]?.length || 0} />
               </div>
             </div>

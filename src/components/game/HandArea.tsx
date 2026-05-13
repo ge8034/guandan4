@@ -115,7 +115,19 @@ export function HandArea({
       .map((c, i) => (lockedCardSet.has(c) ? i : -1))
       .filter(i => i !== -1)
   );
-  const unlockedIndices = cards.map((_, i) => i).filter(i => !lockedIndices.has(i));
+  // 未锁定牌：按牌值降序排序，相同点数自然聚在一起（对子/三张/炸弹一目了然）
+  // 大小王(value>=100)排在最后
+  const unlockedIndices = cards
+    .map((_, i) => i)
+    .filter(i => !lockedIndices.has(i))
+    .sort((a, b) => {
+      const va = cards[a]?.value ?? 0;
+      const vb = cards[b]?.value ?? 0;
+      const isJokerA = va >= 100;
+      const isJokerB = vb >= 100;
+      if (isJokerA !== isJokerB) return isJokerA ? 1 : -1;
+      return vb - va;
+    });
 
   let renderSeq = 0;
   const nextSeq = () => renderSeq++;
@@ -173,12 +185,15 @@ export function HandArea({
           );
         })}
 
-        {/* 未锁定牌 */}
-        {unlockedIndices.map((origIndex) => {
+        {/* 未锁定牌 — 按牌值分组排序 */}
+        {unlockedIndices.map((origIndex, idx) => {
           const card = cards[origIndex];
           if (!card) return null;
           const isPlaying = playingIndices?.has(origIndex);
           const seq = nextSeq();
+
+          // 检测新牌值分组起点，添加视觉间隔
+          const isNewGroup = idx > 0 && cards[unlockedIndices[idx - 1]]?.value !== card.value;
 
           return (
             <div
@@ -186,10 +201,11 @@ export function HandArea({
               data-hand-index={origIndex}
               className={[
                 'transition-all duration-200 ease-out',
+                isNewGroup && 'mx-1',
                 isPlaying && 'animate-fly-away will-change-transform',
               ].filter(Boolean).join(' ')}
               style={{
-                marginLeft: seq > 0 ? 'var(--card-overlap)' : '0',
+                marginLeft: idx > 0 ? 'var(--card-overlap)' : '0',
                 zIndex: seq,
               }}
             >
