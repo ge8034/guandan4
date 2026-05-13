@@ -18,6 +18,16 @@ FILES = [
     r"src\app\profile\page.tsx",
     r"src\app\room\[roomId]\page.tsx",
     r"src\components\game\Scoreboard.tsx",
+    r"src\components\game\PlayingCard.tsx",
+    r"src\components\game\HandArea.tsx",
+    r"src\components\ui\Card.tsx",
+    r"src\components\ui\Input.tsx",
+    r"src\components\ui\Modal.tsx",
+    r"src\components\ui\Avatar.tsx",
+    r"src\components\ui\Button.tsx",
+    r"src\components\ui\Badge.tsx",
+    r"src\components\layout\Navigation.tsx",
+    r"src\components\ui\Tabs.tsx",
 ]
 
 def check_build_output(text):
