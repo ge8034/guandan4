@@ -122,13 +122,13 @@ export default function RoomPage() {
     const check = () => {
       const isLandscape = window.innerWidth <= 1023 && window.innerWidth > window.innerHeight;
       document.documentElement.classList.toggle('is-landscape', isLandscape);
+      // 调试：在控制台输出检测结果
+      console.log('[横屏检测]', { w: window.innerWidth, h: window.innerHeight, isLandscape });
     };
     check();
-    // Screen Orientation API（现代浏览器首选）
     if (screen?.orientation) {
       screen.orientation.addEventListener('change', check);
     }
-    // fallback
     window.addEventListener('resize', check);
     return () => {
       if (screen?.orientation) {
