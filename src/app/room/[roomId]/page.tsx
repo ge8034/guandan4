@@ -117,13 +117,14 @@ export default function RoomPage() {
     speechSynthesis.speak(u);
   };
 
+  const [landscapeDebug, setLandscapeDebug] = useState({ w: 0, h: 0, isLandscape: false });
+
   // 手机横屏自动旋转
   useEffect(() => {
     const check = () => {
       const isLandscape = window.innerWidth <= 1023 && window.innerWidth > window.innerHeight;
       document.documentElement.classList.toggle('is-landscape', isLandscape);
-      // 调试：在控制台输出检测结果
-      console.log('[横屏检测]', { w: window.innerWidth, h: window.innerHeight, isLandscape });
+      setLandscapeDebug({ w: window.innerWidth, h: window.innerHeight, isLandscape });
     };
     check();
     if (screen?.orientation) {
@@ -434,7 +435,10 @@ export default function RoomPage() {
         {/* ======= 牌桌 ======= */}
         <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-0.5 sm:pt-1 flex-1 flex flex-col">
           <div className="poker-table-bg poker-table-border flex-1 flex flex-col overflow-hidden relative">
-
+            {/* 横屏调试 */}
+            <div className="absolute top-1 right-1 z-50 bg-black/80 text-white text-[10px] px-2 py-0.5 rounded">
+              {landscapeDebug.w}×{landscapeDebug.h} {landscapeDebug.isLandscape ? '横屏' : '竖屏'}
+            </div>
             <DealAnimation
               play={dealAnimation}
               onComplete={() => setDealAnimation(false)}
