@@ -106,7 +106,7 @@ function TableTurn({
           : 'bg-white/5',
       ].join(' ')}
     >
-      <span className="text-xs text-white/40">{label}</span>
+      <span className="text-[13px] text-white/40">{label}</span>
       {turn ? (
         turn.type === 'pass' ? (
           <span className="text-sm font-medium text-white/50">过</span>

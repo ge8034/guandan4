@@ -524,7 +524,8 @@ export default function RoomPage() {
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
                   disabled={currentSeat !== effectiveMySeat}
-                  onCardClick={handleCardClick} />
+                  onCardClick={handleCardClick}
+                  onPlayDoubleClick={handlePlay} />
               </div>
               {/* 移动端手牌 */}
               <div className="w-full max-w-5xl px-0 mt-1 -mb-4 sm:hidden" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
@@ -532,7 +533,8 @@ export default function RoomPage() {
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
                   disabled={currentSeat !== effectiveMySeat}
-                  onCardClick={handleCardClick} />
+                  onCardClick={handleCardClick}
+                  onPlayDoubleClick={handlePlay} />
               </div>
               {/* 桌面端操作栏 — 手牌下方居中 */}
               <div className="hidden sm:block mt-3 glass-dark border border-white/10 rounded-lg landscape-actions">

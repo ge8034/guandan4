@@ -10,6 +10,7 @@ interface HandAreaProps {
   loading?: boolean;
   playingIndices?: Set<number>;
   onCardClick?: (index: number) => void;
+  onPlayDoubleClick?: () => void;
   lockedGroups?: CardData[][];
   onDragSelect?: (indices: number[]) => void;
   onDeselectAll?: () => void;
@@ -35,6 +36,7 @@ export function HandArea({
   loading = false,
   playingIndices,
   onCardClick,
+  onPlayDoubleClick,
   lockedGroups,
   onDragSelect,
   onDeselectAll,
@@ -43,6 +45,7 @@ export function HandArea({
   const draggingRef = useRef(false);
   const dragSet = useRef<Set<number>>(new Set());
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastClickRef = useRef<{ index: number; time: number } | null>(null);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (disabled) return;
@@ -77,6 +80,26 @@ export function HandArea({
       onDragSelect?.(Array.from(dragSet.current));
     }
   }, [onDragSelect]);
+
+  // 双击出牌：同一张已选中牌在 300ms 内被点击两次，触发 onPlayDoubleClick
+  const handleCardClickWrapper = (origIndex: number) => {
+    const now = Date.now();
+    const last = lastClickRef.current;
+    if (
+      onPlayDoubleClick &&
+      last &&
+      last.index === origIndex &&
+      now - last.time < 300 &&
+      selectedCardIds?.has(origIndex)
+    ) {
+      onPlayDoubleClick();
+      lastClickRef.current = null;
+      return;
+    }
+    lastClickRef.current = { index: origIndex, time: now };
+    onCardClick?.(origIndex);
+  };
+
   if (loading) {
     return (
       <div className="w-full overflow-x-auto">
@@ -175,7 +198,7 @@ export function HandArea({
                         selected={selectedCardIds?.has(origIndex)}
                         disabled={disabled}
                         levelRank={levelRank}
-                        onClick={() => onCardClick?.(origIndex)}
+                        onClick={() => handleCardClickWrapper(origIndex)}
                       />
                     </div>
                   );
@@ -214,7 +237,7 @@ export function HandArea({
                 selected={selectedCardIds?.has(origIndex)}
                 disabled={disabled || isPlaying}
                 levelRank={levelRank}
-                onClick={() => onCardClick?.(origIndex)}
+                onClick={() => handleCardClickWrapper(origIndex)}
               />
             </div>
           );

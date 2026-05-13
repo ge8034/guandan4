@@ -40,7 +40,7 @@ export function PlayerSeat({
       ) : (
         <Avatar name={name} size="md" online={isOnline} />
       )}
-      <span className="text-xs font-medium text-white/80 truncate max-w-[5rem] sm:max-w-[6rem]">
+      <span className="text-sm font-medium text-white/80 truncate max-w-[5rem] sm:max-w-[6rem]">
         {name}
       </span>
       <span className="text-xs text-white/40">
