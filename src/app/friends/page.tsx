@@ -16,7 +16,7 @@ export default function FriendsPage() {
   );
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
+    <main className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="text-2xl font-bold text-neutral-900">好友</h1>
       <p className="mt-0.5 text-sm text-neutral-500">管理好友和查看在线状态</p>
 

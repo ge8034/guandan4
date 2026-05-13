@@ -26,9 +26,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className="min-h-screen bg-neutral-50 text-neutral-900 antialiased">
+      <body className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900 antialiased">
         <Navigation />
-        <div className="min-h-[calc(100vh-3.5rem)]">{children}</div>
+        <div className="flex-1">{children}</div>
         <Footer />
         <script
           dangerouslySetInnerHTML={{

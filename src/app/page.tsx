@@ -60,7 +60,7 @@ export default function HomePage() {
           <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-cta/5 blur-3xl" />
         </div>
 
-        <div className="flex flex-col items-center px-4 pt-24 pb-16 text-center">
+        <div className="mx-auto max-w-5xl flex flex-col items-center px-4 pt-24 pb-16 text-center">
           <div className={[
             'transition-all duration-500 ease-out',
             mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
@@ -99,7 +99,7 @@ export default function HomePage() {
 
       {/* 特色卡片 */}
       <section className="mx-auto max-w-5xl px-4 pb-24">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {features.map((feat, i) => (
             <div
               key={feat.title}

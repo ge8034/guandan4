@@ -5,7 +5,7 @@ import { mockLeaderboard } from '@/mock/data';
 
 export default function LeaderboardPage() {
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
+    <main className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="text-2xl font-bold text-neutral-900">排行榜</h1>
       <p className="mt-0.5 text-sm text-neutral-500">掼蛋玩家积分排名</p>
 

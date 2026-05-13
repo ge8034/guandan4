@@ -117,25 +117,28 @@ export default function RoomPage() {
     speechSynthesis.speak(u);
   };
 
-  const [landscapeDebug, setLandscapeDebug] = useState({ w: 0, h: 0, isLandscape: false });
-
-  // 手机横屏自动旋转
+  // 手机横屏检测
   useEffect(() => {
+    const mq = window.matchMedia('(orientation: landscape)');
     const check = () => {
-      const isLandscape = window.innerWidth <= 1023 && window.innerWidth > window.innerHeight;
-      document.documentElement.classList.toggle('is-landscape', isLandscape);
-      setLandscapeDebug({ w: window.innerWidth, h: window.innerHeight, isLandscape });
+      const w = window.innerWidth;
+      // 桌面端跳过横屏检测（宽度 > 1023px 时 data-landscape 无触发条件）
+      if (w > 1023) return;
+      const h = window.innerHeight;
+      const angle = (window.screen.orientation?.angle ?? 0) as number;
+      const isLandscape = mq.matches || angle === 90 || angle === 270 || w > h;
+      if (isLandscape) {
+        document.documentElement.setAttribute('data-landscape', '');
+      } else {
+        document.documentElement.removeAttribute('data-landscape');
+      }
     };
     check();
-    if (screen?.orientation) {
-      screen.orientation.addEventListener('change', check);
-    }
-    window.addEventListener('resize', check);
+    mq.addEventListener('change', check);
+    const timer = setInterval(check, 800);
     return () => {
-      if (screen?.orientation) {
-        screen.orientation.removeEventListener('change', check);
-      }
-      window.removeEventListener('resize', check);
+      clearInterval(timer);
+      mq.removeEventListener('change', check);
     };
   }, []);
 
@@ -414,38 +417,37 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 flex flex-col">
-        <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-1 sm:pt-2">
+    <div className="min-h-screen flex flex-col landscape-root">
+      <main className="flex-1 flex flex-col landscape-main">
+        <div className="mx-auto w-full max-w-7xl 2xl:max-w-[90rem] px-1 sm:px-2 pt-0.5">
           <Scoreboard />
-          <div className="mt-1">
-            <GameStatusBar
-            status={phase === 'finished' ? 'finished' : 'playing'}
-            levelRank={levelRank}
-            turnNo={turnNo}
-            roundCount={roundNumber}
-            roomName="联网对局"
-            hasTribute={!!tributeInfo}
-            resistCount={tributeInfo?.resistSeats?.length || 0}
-            reportNames={reportNames.length > 0 ? reportNames : undefined}
-          />
-          </div>
         </div>
 
         {/* ======= 牌桌 ======= */}
-        <div className="mx-auto w-full max-w-7xl px-1 sm:px-2 pt-0.5 sm:pt-1 flex-1 flex flex-col">
-          <div className="poker-table-bg poker-table-border flex-1 flex flex-col overflow-hidden relative">
-            {/* 横屏调试 */}
-            <div className="absolute top-1 right-1 z-50 bg-black/80 text-white text-[10px] px-2 py-0.5 rounded">
-              {landscapeDebug.w}×{landscapeDebug.h} {landscapeDebug.isLandscape ? '横屏' : '竖屏'}
+        <div className="mx-auto w-full max-w-7xl 2xl:max-w-[90rem] px-1 sm:px-2 flex-1 flex flex-col landscape-table-wrap relative">
+          {/* GameStatusBar 悬浮牌桌右上角 */}
+          <div className="absolute top-1 right-1 z-10 pointer-events-none">
+            <div className="pointer-events-auto">
+              <GameStatusBar
+              status={phase === 'finished' ? 'finished' : 'playing'}
+              levelRank={levelRank}
+              turnNo={turnNo}
+              roundCount={roundNumber}
+              roomName="联网对局"
+              hasTribute={!!tributeInfo}
+              resistCount={tributeInfo?.resistSeats?.length || 0}
+              reportNames={reportNames.length > 0 ? reportNames : undefined}
+            />
             </div>
+          </div>
+          <div className="poker-table-bg poker-table-border flex-1 flex flex-col overflow-hidden relative landscape-table">
             <DealAnimation
               play={dealAnimation}
               onComplete={() => setDealAnimation(false)}
             />
 
             {/* 上方：对家 */}
-            <div className="flex flex-col items-center pt-1">
+            <div className="flex flex-col items-center pt-1 landscape-opponent">
               <div className={`overflow-x-auto max-w-full hidden sm:block`} style={handScaleStyle}>
                 <CardBacks count={hands[duijiaSeat]?.length || 0} />
               </div>
@@ -454,33 +456,33 @@ export default function RoomPage() {
             </div>
 
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
-            <div className="flex items-center justify-center flex-1 px-0 gap-4">
+            <div className="flex items-center justify-center px-0 gap-4 landscape-middle">
               {/* 左：上家 */}
-              <div className={`hidden sm:flex items-center self-stretch shrink-0 gap-2`}>
+              <div className="hidden sm:flex items-center self-stretch shrink-0 gap-2 landscape-left-player">
                 <CardBacks count={hands[shangjiaSeat]?.length || 0} />
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)} />
               </div>
 
               {/* 移动端上家(简化为仅座位) */}
-              <div className={`flex sm:hidden items-center self-stretch shrink-0`}>
+              <div className="flex sm:hidden items-center self-stretch shrink-0 landscape-left-player">
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)} />
               </div>
 
               {/* 中：牌桌出牌区 */}
-              <div className="flex items-center justify-center min-h-[160px] sm:min-h-[200px] px-11">
+              <div className="flex items-center justify-center min-h-[160px] sm:min-h-[200px] px-11 landscape-center-table">
                 <TableArea recentTurns={recentTurns.slice(0, 2)} currentTurnSeat={currentSeat} effectiveMySeat={effectiveMySeat} lastPlay={lastPlay} />
               </div>
 
               {/* 移动端下家(简化为仅座位) */}
-              <div className={`flex sm:hidden items-center self-stretch shrink-0`}>
+              <div className="flex sm:hidden items-center self-stretch shrink-0 landscape-right-player">
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
               </div>
 
               {/* 右：下家 */}
-              <div className={`hidden sm:flex items-center self-stretch shrink-0 gap-2`}>
+              <div className="hidden sm:flex items-center self-stretch shrink-0 gap-2 landscape-right-player">
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)} />
                 <CardBacks count={hands[xiajiaSeat]?.length || 0} />
@@ -488,10 +490,10 @@ export default function RoomPage() {
             </div>
 
             {/* 下方：人类 */}
-            <div className="flex flex-col items-center pt-4 pb-0 mt-auto">
+            <div className="flex flex-col items-center pt-0 pb-0 landscape-self">
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} showCount={true} />
-              <div className={`w-full max-w-4xl px-0 mt-0 -mb-6 hidden sm:block`} style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-6xl px-0 mt-2 sm:mt-4 hidden sm:block" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
@@ -499,15 +501,43 @@ export default function RoomPage() {
                   onCardClick={handleCardClick} />
               </div>
               {/* 移动端手牌 */}
-              <div className="w-full max-w-4xl px-0 mt-0 -mb-4 sm:hidden" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-6xl px-0 mt-1 -mb-4 sm:hidden" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
                   disabled={currentSeat !== effectiveMySeat}
                   onCardClick={handleCardClick} />
               </div>
+              {/* 桌面端操作栏 — 手牌下方居中 */}
+              <div className="hidden sm:block mt-3 glass-dark border border-white/10 rounded-lg landscape-actions">
+                <ActionBar
+                  canPlay={currentSeat === effectiveMySeat}
+                  selectedCount={selectedIndices.size}
+                  onPlay={handlePlay}
+                  onPass={handlePass}
+                  onHint={handleHint}
+                  canLock={canLock}
+                  canUnlock={canUnlock}
+                  onLock={handleLock}
+                  onUnlock={handleUnlock}
+                />
+              </div>
             </div>
 
+          </div>
+          {/* 移动端操作栏 — 右下角悬浮 */}
+          <div className="sm:hidden absolute bottom-0 right-0 z-[--z-sticky] glass-dark border-t border-l border-white/10 rounded-tl-lg landscape-actions">
+            <ActionBar
+              canPlay={currentSeat === effectiveMySeat}
+              selectedCount={selectedIndices.size}
+              onPlay={handlePlay}
+              onPass={handlePass}
+              onHint={handleHint}
+              canLock={canLock}
+              canUnlock={canUnlock}
+              onLock={handleLock}
+              onUnlock={handleUnlock}
+            />
           </div>
         </div>
 
@@ -517,21 +547,6 @@ export default function RoomPage() {
             <p className="text-center text-xs text-red-400 animate-pulse">{error}</p>
           </div>
         )}
-
-        {/* 操作栏 — 深色玻璃态，移动端安全区 */}
-        <div className="sticky bottom-0 mx-auto w-full max-w-7xl glass-dark border-t border-white/10 pb-[env(safe-area-inset-bottom,0px)]">
-          <ActionBar
-            canPlay={currentSeat === effectiveMySeat}
-            selectedCount={selectedIndices.size}
-            onPlay={handlePlay}
-            onPass={handlePass}
-            onHint={handleHint}
-            canLock={canLock}
-            canUnlock={canUnlock}
-            onLock={handleLock}
-            onUnlock={handleUnlock}
-          />
-        </div>
       </main>
     </div>
   );

@@ -65,7 +65,11 @@ export default function LobbyPage() {
   const handleContextMenu = (e: React.MouseEvent, roomId: string) => {
     e.preventDefault();
     deleteRoomIdRef.current = roomId;
-    setContextMenu({ x: e.clientX, y: e.clientY });
+    const menuW = 120;
+    const menuH = 44;
+    const x = Math.min(e.clientX, window.innerWidth - menuW);
+    const y = Math.min(e.clientY, window.innerHeight - menuH);
+    setContextMenu({ x, y });
   };
 
   useEffect(() => {
@@ -119,7 +123,7 @@ export default function LobbyPage() {
       </div>
 
       {/* 房间列表 */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {filtered.map(({ room, playerCount }) => (
           <div
             key={room.id}
