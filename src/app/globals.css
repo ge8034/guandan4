@@ -581,3 +581,96 @@ p, li {
   padding: 2px 4px !important;
   min-height: 28px;
 }
+
+/* ========================================
+   炸弹全屏闪光特效
+   使用 compositor-only 属性 (transform + opacity)
+   ======================================== */
+
+@keyframes bomb-flash {
+  0%   { opacity: 0; transform: scale(0.8); }
+  30%  { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+
+.animate-bomb-flash {
+  animation: bomb-flash 250ms var(--ease-out) both;
+  pointer-events: none;
+}
+
+.bomb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: radial-gradient(circle, oklch(0.72 0.18 60 / 0.6), transparent 70%);
+  pointer-events: none;
+}
+
+/* ========================================
+   胜利彩带飘落特效
+   纯 CSS 实现，多重粒子 box-shadow 扩散
+   ======================================== */
+
+@keyframes victory-particle {
+  0%   { opacity: 0; transform: translateY(-100vh) rotate(0deg); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+}
+
+@keyframes victory-particle-2 {
+  0%   { opacity: 0; transform: translateY(-80vh) rotate(0deg); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(100vh) rotate(-540deg); }
+}
+
+.victory-particle {
+  position: fixed;
+  z-index: 500;
+  pointer-events: none;
+  left: 50%;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: victory-particle 2s var(--ease-out) both;
+  color-scheme: only light;
+}
+
+/* 粒子颜色 — 交替使用品牌三色 (金 / 靛蓝 / 暖橙) */
+.victory-particle {
+  background: oklch(0.72 0.18 60); /* 金色 */
+}
+
+.victory-particle:nth-child(3n+1) {
+  background: oklch(0.55 0.22 280); /* 靛蓝 */
+  left: 40%;
+  animation-duration: 2.2s;
+}
+
+.victory-particle:nth-child(3n+2) {
+  background: oklch(0.67 0.19 50); /* 暖橙 CTA */
+  left: 60%;
+  animation-duration: 1.8s;
+}
+
+.victory-particle:nth-child(2n) {
+  animation-name: victory-particle-2;
+}
+
+/* ========================================
+   震屏效果
+   compositor-only transform，配合炸弹使用
+   ======================================== */
+
+@keyframes shake {
+  0%, 100% { transform: translate(0); }
+  10%      { transform: translate(-4px, 2px); }
+  30%      { transform: translate(4px, -1px); }
+  50%      { transform: translate(-2px, 3px); }
+  70%      { transform: translate(3px, 1px); }
+  90%      { transform: translate(-1px, -2px); }
+}
+
+.shake-screen {
+  animation: shake 200ms var(--ease-out) both;
+}

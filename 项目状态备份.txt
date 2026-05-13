@@ -1,0 +1,40 @@
+项目状态备份完成
+
+  已保存内容
+
+  备份项: Git 标签
+  位置: v2.0-baseline-20260513
+  说明: 含完整注释（代码+ECS+数据库+测试）
+  ────────────────────────────────────────
+  备份项: PRD 文档
+  位置: docs/PRD-v2.0-optimization.md
+  说明: 47 项优化需求，对标 QQ掼蛋/JJ斗地主
+  ────────────────────────────────────────
+  备份项: 状态快照
+  位置: docs/STATE-SNAPSHOT-v2.0.md
+  说明: 代码/ECS/数据库全状态记录
+  ────────────────────────────────────────
+  备份项: ECS 部署脚本
+  位置: scripts/deploy-windows.py
+  说明: Windows ECS 自动部署
+  ────────────────────────────────────────
+  备份项: ECS 启动脚本
+  位置: scripts/start_gd4.bat
+  说明: 含 PATH 配置的开机自启脚本
+  ────────────────────────────────────────
+  备份项: 数据库表结构
+  位置: supabase/migrations/20260429_phase3_init.sql
+  说明: rooms/room_members/turns 完整 DDL
+
+  当前状态
+
+  - 代码: master 分支，2 个提交（桌面端优化 + 备份文档）
+  - ECS: 8.136.23.108:3000 正常运行，HTTP 200
+  - 数据库: Supabase，3 张表 + RLS + Realtime
+  - 测试: 289 passed / 8 files
+
+  恢复命令
+
+  git checkout v2.0-baseline-20260513    # 代码回滚
+  python scripts/deploy-windows.py       # 重新部署到 ECS
+  # 数据库通过 Supabase Dashboard 恢复

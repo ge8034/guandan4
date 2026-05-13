@@ -9,21 +9,23 @@ interface GameStatusBarProps {
   hasTribute?: boolean;
   resistCount?: number;
   reportNames?: string[];
+  /** 精简模式：仅显示房间名、状态、报牌、进贡、级牌，隐藏局数和轮数 */
+  compact?: boolean;
 }
 
-const statusLabels: Record<string, string> = {
+export const statusLabels: Record<string, string> = {
   waiting: '等待中',
   playing: '游戏中',
   finished: '已结束',
 };
 
-const statusVariants: Record<string, 'default' | 'success' | 'warning' | 'error' | 'accent'> = {
+export const statusVariants: Record<string, 'default' | 'success' | 'warning' | 'error' | 'accent'> = {
   waiting: 'warning',
   playing: 'success',
   finished: 'default',
 };
 
-const levelRanks: Record<number, string> = {
+export const levelRanks: Record<number, string> = {
   2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7',
   8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q', 13: 'K', 1: 'A',
 };
@@ -39,6 +41,7 @@ export function GameStatusBar({
   hasTribute,
   resistCount = 0,
   reportNames,
+  compact = false,
 }: GameStatusBarProps) {
   // 语音播报报牌
   const reportKey = reportNames?.join(',') || '';
@@ -78,16 +81,20 @@ export function GameStatusBar({
             {levelRanks[levelRank] || levelRank}
           </span>
         </span>
-        <span className="hidden sm:inline">
-          第{' '}
-          <span className="text-white font-medium">{roundCount}</span>{' '}
-          局
-        </span>
-        <span>
-          第{' '}
-          <span className="text-white font-medium">{turnNo}</span>{' '}
-          轮
-        </span>
+        {!compact && (
+          <span className="hidden sm:inline">
+            第{' '}
+            <span className="text-white font-medium">{roundCount}</span>{' '}
+            局
+          </span>
+        )}
+        {!compact && (
+          <span>
+            第{' '}
+            <span className="text-white font-medium">{turnNo}</span>{' '}
+            轮
+          </span>
+        )}
       </div>
     </div>
   );

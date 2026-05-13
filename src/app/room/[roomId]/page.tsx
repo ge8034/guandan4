@@ -106,6 +106,8 @@ export default function RoomPage() {
   const [connected, setConnected] = useState(false);
   const [initializing, setInitializing] = useState(true);
   const [dealAnimation, setDealAnimation] = useState(false);
+  const [bombFlash, setBombFlash] = useState(false);
+  const [victoryEffect, setVictoryEffect] = useState(false);
   const prevPhaseRef = useRef<GamePhase>(phase);
   const reportedRef = useRef<Set<number>>(new Set());
   const speechWarmedRef = useRef(false);
@@ -162,11 +164,15 @@ export default function RoomPage() {
     backgroundAuth();
   }, []);
 
-  // 游戏结束 → 跳转结算页 + 胜利音效
+  // 游戏结束 → 特效 + 跳转结算页
   useEffect(() => {
     if (phase === 'finished') {
+      setVictoryEffect(true);
       sound.playVictory();
-      router.push(`/room/${roomId}/result`);
+      const timer = setTimeout(() => {
+        router.push(`/room/${roomId}/result`);
+      }, 1500);
+      return () => clearTimeout(timer);
     }
   }, [phase, roomId, router, sound]);
 
@@ -316,7 +322,7 @@ export default function RoomPage() {
       // 音效
       const classified = classifyHand(selected, levelRank);
       if (classified?.type === 'bomb' || classified?.type === 'rocket') {
-        sound.playBomb();
+        setBombFlash(true); setTimeout(() => setBombFlash(false), 300); sound.playBomb();
       } else {
         sound.playCard();
       }
@@ -422,7 +428,13 @@ export default function RoomPage() {
     <div className="min-h-screen flex flex-col landscape-root">
       <main className="flex-1 flex flex-col landscape-main">
         <div className="mx-auto w-full max-w-7xl 2xl:max-w-[90rem] px-1 sm:px-2 pt-0.5">
-          <Scoreboard />
+          <Scoreboard
+            roomName="联网对局"
+            status={phase === 'finished' ? 'finished' : 'playing'}
+            hasTribute={!!tributeInfo}
+            resistCount={tributeInfo?.resistSeats?.length || 0}
+            reportNames={reportNames.length > 0 ? reportNames : undefined}
+          />
         </div>
 
         {/* ======= 牌桌 ======= */}
@@ -432,7 +444,7 @@ export default function RoomPage() {
             <CardCounter />
           </div>
 
-          {/* GameStatusBar 悬浮牌桌右上角 */}
+          {/* GameStatusBar — 桌面端精简,移动端完整 */}
           <div className="absolute top-1 right-1 z-10 pointer-events-none">
             <div className="pointer-events-auto">
               <GameStatusBar
@@ -444,6 +456,7 @@ export default function RoomPage() {
               hasTribute={!!tributeInfo}
               resistCount={tributeInfo?.resistSeats?.length || 0}
               reportNames={reportNames.length > 0 ? reportNames : undefined}
+              compact
             />
             </div>
           </div>
@@ -559,6 +572,23 @@ export default function RoomPage() {
           <div className="mx-auto w-full max-w-7xl px-2">
             <p className="text-center text-xs text-red-400">{error}</p>
           </div>
+        )}
+
+        {/* 炸弹全屏闪光 */}
+        {bombFlash && <div className="fixed inset-0 z-[500] pointer-events-none bomb-overlay animate-bomb-flash" />}
+
+        {/* 胜利彩带 */}
+        {victoryEffect && (
+          <>
+            <div className="fixed inset-0 z-[500] pointer-events-none flex items-center justify-center">
+              <div className="victory-particle" style={{ left: '30%', backgroundColor: 'oklch(0.72 0.18 60)' }} />
+              <div className="victory-particle" style={{ left: '45%', backgroundColor: 'oklch(0.55 0.22 280)', animationDelay: '0.15s' }} />
+              <div className="victory-particle" style={{ left: '55%', backgroundColor: 'oklch(0.67 0.19 50)', animationDelay: '0.3s' }} />
+              <div className="victory-particle" style={{ left: '40%', backgroundColor: 'oklch(0.72 0.18 60)', animationDelay: '0.1s' }} />
+              <div className="victory-particle" style={{ left: '50%', backgroundColor: 'oklch(0.55 0.22 280)', animationDelay: '0.2s' }} />
+              <div className="victory-particle" style={{ left: '60%', backgroundColor: 'oklch(0.67 0.19 50)', animationDelay: '0.25s' }} />
+            </div>
+          </>
         )}
       </main>
     </div>
