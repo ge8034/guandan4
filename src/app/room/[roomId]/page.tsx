@@ -124,11 +124,17 @@ export default function RoomPage() {
       document.documentElement.classList.toggle('is-landscape', isLandscape);
     };
     check();
+    // Screen Orientation API（现代浏览器首选）
+    if (screen?.orientation) {
+      screen.orientation.addEventListener('change', check);
+    }
+    // fallback
     window.addEventListener('resize', check);
-    window.addEventListener('orientationchange', check);
     return () => {
+      if (screen?.orientation) {
+        screen.orientation.removeEventListener('change', check);
+      }
       window.removeEventListener('resize', check);
-      window.removeEventListener('orientationchange', check);
     };
   }, []);
 
