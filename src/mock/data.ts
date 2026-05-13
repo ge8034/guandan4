@@ -91,10 +91,10 @@ export interface MockPlayer {
 }
 
 export const mockPlayers: MockPlayer[] = [
-  { id: 'p1', name: '牌神', seat: 0, cardCount: 20, isOnline: true, isMe: false, isOwner: true },
-  { id: 'p2', name: '掼蛋高手', seat: 1, cardCount: 15, isOnline: true, isMe: false, isOwner: false },
-  { id: 'p3', name: '扑克达人', seat: 2, cardCount: 10, isOnline: true, isMe: false, isOwner: false },
-  { id: 'p4', name: '我', seat: 3, cardCount: 28, isOnline: true, isMe: true, isOwner: false },
+  { id: 'p1', name: '范总', seat: 0, cardCount: 20, isOnline: true, isMe: false, isOwner: true },
+  { id: 'p2', name: '鞠局', seat: 1, cardCount: 15, isOnline: true, isMe: false, isOwner: false },
+  { id: 'p3', name: '许局', seat: 2, cardCount: 10, isOnline: true, isMe: false, isOwner: false },
+  { id: 'p4', name: '潘金莲', seat: 3, cardCount: 28, isOnline: true, isMe: true, isOwner: false },
 ];
 
 // === 回合数据 ===
@@ -114,9 +114,9 @@ export const mockRecentTurns: MockTurn[] = [
 
 // === 排行榜数据 ===
 export const mockLeaderboard = [
-  { rank: 1, name: '牌神', score: 9850, wins: 142, total: 200, winRate: '71%' },
-  { rank: 2, name: '掼蛋高手', score: 8720, wins: 118, total: 185, winRate: '64%' },
-  { rank: 3, name: '扑克达人', score: 7650, wins: 95, total: 160, winRate: '59%' },
+  { rank: 1, name: '范总', score: 9850, wins: 142, total: 200, winRate: '71%' },
+  { rank: 2, name: '鞠局', score: 8720, wins: 118, total: 185, winRate: '64%' },
+  { rank: 3, name: '许局', score: 7650, wins: 95, total: 160, winRate: '59%' },
   { rank: 4, name: '牌局新星', score: 6320, wins: 78, total: 145, winRate: '54%' },
   { rank: 5, name: '幸运之星', score: 5100, wins: 60, total: 120, winRate: '50%' },
 ];
@@ -131,9 +131,9 @@ export const mockHistory = [
 
 // === 好友数据 ===
 export const mockFriends = [
-  { id: 'f1', name: '牌神', online: true, level: '王者', winRate: '71%' },
-  { id: 'f2', name: '掼蛋高手', online: true, level: '大师', winRate: '64%' },
-  { id: 'f3', name: '扑克达人', online: false, level: '大师', winRate: '59%' },
+  { id: 'f1', name: '范总', online: true, level: '王者', winRate: '71%' },
+  { id: 'f2', name: '鞠局', online: true, level: '大师', winRate: '64%' },
+  { id: 'f3', name: '许局', online: false, level: '大师', winRate: '59%' },
   { id: 'f4', name: '牌局新星', online: true, level: '钻石', winRate: '54%' },
 ];
 

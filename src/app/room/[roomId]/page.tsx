@@ -22,7 +22,7 @@ import type { Card } from '@/lib/game/types';
 import type { GamePhase } from '@/lib/game/types';
 import type { GameEvent } from '@/lib/supabase/realtime';
 
-const playerNames = ['牌神', '掼蛋高手', '扑克达人', '我'];
+const playerNames = ['范总', '鞠局', '许局', '潘金莲'];
 
 /** 牌背：完全不透明蓝底+十字星图案 */
 function CardBacks({ count }: { count: number }) {

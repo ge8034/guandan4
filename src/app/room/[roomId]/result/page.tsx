@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { useGameStore } from '@/lib/store/game';
 
-const playerNames = ['牌神', '掼蛋高手', '扑克达人', '我'];
+const playerNames = ['范总', '鞠局', '许局', '潘金莲'];
 
 const rankColors = [
   { bg: 'bg-amber-400', text: 'text-white' },
