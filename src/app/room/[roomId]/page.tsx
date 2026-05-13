@@ -493,7 +493,7 @@ export default function RoomPage() {
             <div className="flex flex-col items-center pt-0 pb-0 landscape-self">
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} showCount={true} />
-              <div className="w-full max-w-6xl px-0 mt-2 sm:mt-4 hidden sm:block" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-5xl px-0 mt-2 sm:mt-4 hidden sm:block" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
@@ -501,7 +501,7 @@ export default function RoomPage() {
                   onCardClick={handleCardClick} />
               </div>
               {/* 移动端手牌 */}
-              <div className="w-full max-w-6xl px-0 mt-1 -mb-4 sm:hidden" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
+              <div className="w-full max-w-5xl px-0 mt-1 -mb-4 sm:hidden" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
                 <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                   selectedCardIds={selectedIndices}
                   playingIndices={playingIndices}
@@ -544,7 +544,7 @@ export default function RoomPage() {
         {/* 错误提示 */}
         {error && (
           <div className="mx-auto w-full max-w-7xl px-2">
-            <p className="text-center text-xs text-red-400 animate-pulse">{error}</p>
+            <p className="text-center text-xs text-red-400">{error}</p>
           </div>
         )}
       </main>

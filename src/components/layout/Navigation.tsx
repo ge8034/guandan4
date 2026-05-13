@@ -100,7 +100,7 @@ export function Navigation() {
           {/* 移动端汉堡菜单 */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="touch-target flex items-center justify-center md:hidden rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 active:scale-90 transition-all duration-150"
+            className="touch-target flex items-center justify-center md:hidden rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 active:scale-[0.97] transition-all duration-150"
             aria-label={mobileMenuOpen ? '关闭菜单' : '打开菜单'}
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

@@ -34,7 +34,7 @@ export function Tabs({ tabs, defaultKey, onChange }: TabsProps) {
             className={[
               'relative px-4 py-2.5 text-sm font-medium transition-all duration-150 ease-out',
               'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent',
-              'touch-target active:scale-95',
+              'touch-target active:scale-[0.97]',
               tab.key === activeKey
                 ? 'text-accent-dark'
                 : 'text-neutral-500 hover:text-neutral-700',

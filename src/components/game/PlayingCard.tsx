@@ -95,7 +95,7 @@ export function PlayingCard({
       disabled={disabled}
       aria-label={getAriaLabel(card)}
       aria-pressed={selected}
-      style={isLevelCard ? { backgroundColor: '#e5e7eb' } : undefined}
+      style={isLevelCard ? { backgroundColor: 'oklch(0.9 0.01 270)' } : undefined}
       className={[
         'relative flex shrink-0 select-none flex-col items-center justify-center',
         'rounded-md border-2 font-card',
@@ -103,7 +103,7 @@ export function PlayingCard({
         'transition-all duration-150 ease-out',
         sizeDimensions[size],
         selected
-          ? 'border-accent -translate-y-1.5 scale-[1.02] shadow-lg shadow-accent/20 z-50'
+          ? 'border-accent ring-2 ring-accent/60 brightness-110 -translate-y-1.5 scale-[1.02] shadow-lg shadow-accent/20 z-50'
           : 'border-card-border shadow-sm hover:shadow-md hover:-translate-y-0.5',
         !disabled && 'cursor-pointer active:scale-95',
         disabled && 'cursor-not-allowed opacity-75',

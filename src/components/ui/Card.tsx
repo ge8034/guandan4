@@ -27,7 +27,7 @@ export function Card({
       className={[
         'rounded-xl border border-neutral-200 bg-white shadow-sm',
         variant === 'hoverable' &&
-          'cursor-pointer transition-all duration-250 ease-out hover:-translate-y-0.5 hover:shadow-md',
+          'cursor-pointer transition-all duration-[250ms] ease-out hover:-translate-y-0.5 hover:shadow-md',
         paddingStyles[padding],
         className,
       ]

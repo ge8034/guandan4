@@ -48,7 +48,7 @@ export function Avatar({ src, name, size = 'md', online }: AvatarProps) {
         <img className={['rounded-full object-cover', sizeStyles[size]].join(' ')} src={src} alt={name} />
         {online !== undefined && (
           <span className={[
-            'absolute bottom-0 right-0 rounded-full border-2 border-white',
+            'absolute bottom-0 right-0 rounded-full border-2 border-white/80 ring-1 ring-black/10',
             online ? 'bg-green-500' : 'bg-neutral-300',
             onlineDotSize[size],
           ].join(' ')} />
@@ -68,7 +68,7 @@ export function Avatar({ src, name, size = 'md', online }: AvatarProps) {
       </span>
       {online !== undefined && (
         <span className={[
-          'absolute bottom-0 right-0 rounded-full border-2 border-white',
+          'absolute bottom-0 right-0 rounded-full border-2 border-white/80 ring-1 ring-black/10',
           online ? 'bg-green-500' : 'bg-neutral-300',
           onlineDotSize[size],
         ].join(' ')} />

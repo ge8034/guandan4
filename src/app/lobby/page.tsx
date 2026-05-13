@@ -125,27 +125,27 @@ export default function LobbyPage() {
       {/* 房间列表 */}
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {filtered.map(({ room, playerCount }) => (
-          <div
+          <Card
             key={room.id}
-            onContextMenu={(e) => handleContextMenu(e, room.id)}
+            variant="hoverable"
+            padding="lg"
+            className="h-full cursor-pointer"
             onClick={() => handleJoin(room.id)}
-            className="cursor-pointer"
+            onContextMenu={(e) => handleContextMenu(e, room.id)}
           >
-            <Card variant="hoverable" padding="lg" className="h-full">
-              <div className="flex items-start justify-between">
-                <h3 className="font-semibold text-neutral-900">{room.name}</h3>
-                <Badge variant="accent">{typeLabels[room.type]}</Badge>
-              </div>
-              <div className="mt-3 flex items-center justify-between text-sm">
-                <span className="text-neutral-500">
-                  {playerCount}/{room.max_players} 人
-                </span>
-                <span className="text-xs text-neutral-400">
-                  {statusLabels[room.status]}
-                </span>
-              </div>
-            </Card>
-          </div>
+            <div className="flex items-start justify-between">
+              <h3 className="font-semibold text-neutral-900">{room.name}</h3>
+              <Badge variant="accent">{typeLabels[room.type]}</Badge>
+            </div>
+            <div className="mt-3 flex items-center justify-between text-sm">
+              <span className="text-neutral-500">
+                {playerCount}/{room.max_players} 人
+              </span>
+              <span className="text-xs text-neutral-400">
+                {statusLabels[room.status]}
+              </span>
+            </div>
+          </Card>
         ))}
         {filtered.length === 0 && !loading && (
           <p className="col-span-full py-12 text-center text-sm text-neutral-400">

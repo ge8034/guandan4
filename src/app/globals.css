@@ -70,7 +70,7 @@
   --space-3xl: 3rem;
   --space-4xl: 4rem;
 
-  /* 字体大小 — 5级模块化比例 (1.25) */
+  /* 字体大小 — 实用字体大小等级 */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -126,10 +126,10 @@
   --card-radius: 0.5rem;
 
   /* 牌桌布局 */
-  --card-overlap: -2.3rem;
+  --card-overlap: -2.0rem;
   --card-overlap-mobile: -1.2rem;
-  --hand-scale: 1.15;
-  --my-hand-scale: 1.15;
+  --hand-scale: 1.05;
+  --my-hand-scale: 1.05;
   --hand-scale-mobile: 1.0;
   --player-offset-left: 0rem;
   --player-offset-right: 0rem;
@@ -356,7 +356,7 @@ p, li {
   border-radius: var(--card-radius);
   background: oklch(1 0 0 / 0.1);
   border: 2px dashed oklch(1 0 0 / 0.15);
-  animation: card-skeleton-pulse 1.5s ease-in-out infinite;
+  animation: card-skeleton-pulse 1.5s var(--ease-out) infinite;
 }
 
 .card-skeleton-sm {
@@ -366,23 +366,24 @@ p, li {
 
 /* === 牌桌呼吸灯点 === */
 @keyframes breathe {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 4px oklch(0.65 0.18 280 / 0.4);
-  }
-  50% {
-    opacity: 0.4;
-    box-shadow: 0 0 8px oklch(0.65 0.18 280 / 0.7);
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
 }
 
 .breathe-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
+  width: 6px; height: 6px;
   border-radius: 50%;
   background: var(--color-accent-light);
-  animation: breathe 2s ease-in-out infinite;
+  animation: breathe 2s ease-out infinite;
+  position: relative;
+}
+.breathe-dot::after {
+  content: '';
+  position: absolute; inset: -4px;
+  border-radius: 50%;
+  background: oklch(0.65 0.18 280 / 0.25);
+  filter: blur(4px);
+  animation: breathe 2s ease-out infinite;
 }
 
 /* ========================================
@@ -579,9 +580,4 @@ p, li {
   font-size: 0.65rem;
   padding: 2px 4px !important;
   min-height: 28px;
-}
-
-/* 桌面端 GameStatusBar 悬浮右上 */
-.landscape-table-wrap > .absolute:first-child {
-  /* GameStatusBar wrapper */
 }
