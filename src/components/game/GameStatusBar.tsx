@@ -45,7 +45,7 @@ export function GameStatusBar({
   useEffect(() => {
     if (!reportKey) return;
     // 浏览器首次语音需要用户交互，预热一次
-    const utterance = new SpeechSynthesisUtterance(`${reportNames!.join('、')}报牌`);
+    const utterance = new SpeechSynthesisUtterance(reportNames!.join('、'));
     utterance.lang = 'zh-CN';
     utterance.rate = 0.9;
     // 如果 speechSynthesis 处于暂停状态，先取消再说话
@@ -62,7 +62,7 @@ export function GameStatusBar({
         <Badge variant={statusVariants[status]}>{statusLabels[status]}</Badge>
         {reportNames && reportNames.length > 0 && (
           <Badge variant="warning">
-            {reportNames.join('、')} 报牌
+            {reportNames.join('、')}
           </Badge>
         )}
         {hasTribute && (

@@ -385,12 +385,12 @@ export default function RoomPage() {
   // 报牌：手牌 ≤ 7 张时公开数量并播报一次
   const handSizes = hands.map((h) => h.length);
   const showCount = (seat: number) => handSizes[seat] <= 7;
-  const reportNames = playerNames.filter((_, i) => {
-    if (handSizes[i] > 7 || handSizes[i] === 0) return false;
-    if (reportedRef.current.has(i)) return false;
+  const reportNames = playerNames.map((name, i) => {
+    if (handSizes[i] > 7 || handSizes[i] === 0) return null;
+    if (reportedRef.current.has(i)) return null;
     reportedRef.current.add(i);
-    return true;
-  });
+    return `${name}还剩${handSizes[i]}张`;
+  }).filter(Boolean) as string[];
 
   // 新一局重置报牌状态
   useEffect(() => {
