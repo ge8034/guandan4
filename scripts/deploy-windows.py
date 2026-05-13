@@ -18,6 +18,8 @@ FILES = [
     r"src\app\profile\page.tsx",
     r"src\app\room\[roomId]\page.tsx",
     r"src\components\game\Scoreboard.tsx",
+    r"src\components\game\CardCounter.tsx",
+    r"src\components\game\TurnTimer.tsx",
     r"src\components\game\PlayingCard.tsx",
     r"src\components\game\HandArea.tsx",
     r"src\components\ui\Card.tsx",
