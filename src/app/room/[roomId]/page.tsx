@@ -121,26 +121,22 @@ export default function RoomPage() {
     speechSynthesis.speak(u);
   };
 
-  // 手机横屏检测 — 使用基础宽高比判断，兼容所有浏览器
+  // 手机横屏自动旋转
   useEffect(() => {
     const check = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      if (w > 1023) return;
-      if (w > h) {
-        document.documentElement.setAttribute('data-landscape', '');
-      } else {
-        document.documentElement.removeAttribute('data-landscape');
-      }
+      const isLandscape = window.innerWidth <= 1023 && window.innerWidth > window.innerHeight;
+      document.documentElement.classList.toggle('is-landscape', isLandscape);
     };
     check();
+    if (screen?.orientation) {
+      screen.orientation.addEventListener('change', check);
+    }
     window.addEventListener('resize', check);
-    window.addEventListener('orientationchange', check);
-    const timer = setInterval(check, 800);
     return () => {
+      if (screen?.orientation) {
+        screen.orientation.removeEventListener('change', check);
+      }
       window.removeEventListener('resize', check);
-      window.removeEventListener('orientationchange', check);
-      clearInterval(timer);
     };
   }, []);
 
