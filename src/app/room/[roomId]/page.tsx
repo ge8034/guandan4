@@ -519,13 +519,29 @@ export default function RoomPage() {
             <div className="flex flex-col items-center pt-0 pb-0 landscape-self">
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} showCount={true} />
-              <div className="w-full max-w-5xl px-0 mt-2 sm:mt-4 hidden sm:block" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
-                <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
-                  selectedCardIds={selectedIndices}
-                  playingIndices={playingIndices}
-                  disabled={currentSeat !== effectiveMySeat}
-                  onCardClick={handleCardClick}
-                  onPlayDoubleClick={handlePlay} />
+              {/* 桌面端：手牌+操作栏水平排列 */}
+              <div className="hidden sm:flex items-end gap-3 mt-2 sm:mt-4 landscape-self">
+                <div className="max-w-5xl px-0" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
+                  <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
+                    selectedCardIds={selectedIndices}
+                    playingIndices={playingIndices}
+                    disabled={currentSeat !== effectiveMySeat}
+                    onCardClick={handleCardClick}
+                    onPlayDoubleClick={handlePlay} />
+                </div>
+                <div className="shrink-0 glass-dark border border-white/10 rounded-lg landscape-actions">
+                  <ActionBar
+                    canPlay={currentSeat === effectiveMySeat}
+                    selectedCount={selectedIndices.size}
+                    onPlay={handlePlay}
+                    onPass={handlePass}
+                    onHint={handleHint}
+                    canLock={canLock}
+                    canUnlock={canUnlock}
+                    onLock={handleLock}
+                    onUnlock={handleUnlock}
+                  />
+                </div>
               </div>
               {/* 移动端手牌 */}
               <div className="w-full max-w-5xl px-0 mt-1 -mb-4 sm:hidden" style={{ transform: 'scale(var(--hand-scale-mobile))', transformOrigin: 'bottom center' }}>
@@ -535,20 +551,6 @@ export default function RoomPage() {
                   disabled={currentSeat !== effectiveMySeat}
                   onCardClick={handleCardClick}
                   onPlayDoubleClick={handlePlay} />
-              </div>
-              {/* 桌面端操作栏 — 手牌下方居中 */}
-              <div className="hidden sm:block mt-3 glass-dark border border-white/10 rounded-lg landscape-actions">
-                <ActionBar
-                  canPlay={currentSeat === effectiveMySeat}
-                  selectedCount={selectedIndices.size}
-                  onPlay={handlePlay}
-                  onPass={handlePass}
-                  onHint={handleHint}
-                  canLock={canLock}
-                  canUnlock={canUnlock}
-                  onLock={handleLock}
-                  onUnlock={handleUnlock}
-                />
               </div>
             </div>
 
