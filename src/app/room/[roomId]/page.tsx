@@ -121,22 +121,25 @@ export default function RoomPage() {
   };
 
   // 手机横屏自动旋转
+  const [debugInfo, setDebugInfo] = useState('');
   useEffect(() => {
     const check = () => {
       const isLandscape = window.innerWidth <= 1023 && window.innerWidth > window.innerHeight;
       document.documentElement.classList.toggle('is-landscape', isLandscape);
-      console.log('[横屏]', window.innerWidth, 'x', window.innerHeight, isLandscape ? 'LANDSCAPE' : 'portrait', 'class:', document.documentElement.classList.contains('is-landscape'));
+      setDebugInfo(`${window.innerWidth}x${window.innerHeight} ${isLandscape ? '横屏' : '竖屏'} class:${document.documentElement.classList.contains('is-landscape')}`);
     };
     check();
     if (screen?.orientation) {
       screen.orientation.addEventListener('change', check);
     }
     window.addEventListener('resize', check);
+    const timer = setInterval(check, 500);
     return () => {
       if (screen?.orientation) {
         screen.orientation.removeEventListener('change', check);
       }
       window.removeEventListener('resize', check);
+      clearInterval(timer);
     };
   }, []);
 
@@ -559,6 +562,9 @@ export default function RoomPage() {
             />
           </div>
         </div>
+
+        {/* 横屏调试 */}
+        <div className="fixed bottom-0 left-0 z-[999] bg-black/80 text-white text-[10px] px-2 py-1 rounded-tr">{debugInfo}</div>
 
         {/* 错误提示 */}
         {error && (
