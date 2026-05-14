@@ -81,6 +81,40 @@ export function HandArea({
     }
   }, [onDragSelect]);
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (disabled) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    e.preventDefault();
+    const el = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement | null;
+    const card = el?.closest?.('[data-hand-index]') as HTMLElement | null;
+    if (!card) {
+      onDeselectAll?.();
+      return;
+    }
+    draggingRef.current = true;
+    dragSet.current = new Set();
+  }, [disabled, onDeselectAll]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!draggingRef.current) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const el = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement | null;
+    const card = el?.closest?.('[data-hand-index]') as HTMLElement | null;
+    if (card) {
+      dragSet.current.add(Number(card.getAttribute('data-hand-index')));
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    if (dragSet.current.size > 0) {
+      onDragSelect?.(Array.from(dragSet.current));
+    }
+  }, [onDragSelect]);
+
   // 双击出牌：同一张已选中牌在 300ms 内被点击两次，触发 onPlayDoubleClick
   const handleCardClickWrapper = (origIndex: number) => {
     const now = Date.now();
@@ -156,7 +190,7 @@ export function HandArea({
   const nextSeq = () => renderSeq++;
 
   return (
-    <div className="w-full overflow-x-auto animate-fade-in-up select-none">
+    <div className="w-full overflow-x-auto animate-fade-in-up select-none min-h-[100px] sm:min-h-[120px]">
       <div
         ref={containerRef}
         className="flex justify-center min-w-max px-2 py-4"
@@ -165,6 +199,9 @@ export function HandArea({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onContextMenu={handleContextMenu}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {/* 锁牌组 — 每组一个蓝色边框包裹 */}
         {lockedGroups?.map((group, gi) => {

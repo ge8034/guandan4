@@ -49,7 +49,7 @@ export function ActionBar({
           size="md"
           onClick={onLock}
           disabled={!canPlay}
-          className="border-amber-400/25 text-amber-300/70 hover:bg-amber-400/10 hover:border-amber-400/40"
+          className="border-amber-400/50 text-white hover:bg-amber-400/10 hover:border-amber-400/70"
         >
           锁牌
         </Button>

@@ -418,8 +418,8 @@ p, li {
 
 /* 移除导航高度预留 — 内容区占满屏幕 */
 [data-landscape] body > nav + div {
-  min-height: 0 !important;
-  flex: 1 1 100dvh !important;
+  min-height: 100dvh !important;
+  flex: 1 1 auto !important;
 }
 
 /* 根容器占满屏幕，flex 列 */
