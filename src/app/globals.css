@@ -582,6 +582,10 @@ p, li {
   min-height: 28px;
 }
 
+/* 横屏隐藏顶栏和状态栏 */
+.is-landscape .landscape-topbar { display: none !important; }
+.is-landscape [class*="absolute top-1 right-1"] { display: none !important; }
+
 /* ========================================
    炸弹全屏闪光特效
    使用 compositor-only 属性 (transform + opacity)

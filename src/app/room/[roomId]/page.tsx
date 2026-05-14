@@ -420,7 +420,7 @@ export default function RoomPage() {
   return (
     <div className="min-h-screen flex flex-col landscape-root">
       <main className="flex-1 flex flex-col landscape-main">
-        <div className="mx-auto w-full max-w-7xl 2xl:max-w-[90rem] px-1 sm:px-2 pt-0.5">
+        <div className="mx-auto w-full max-w-7xl 2xl:max-w-[90rem] px-1 sm:px-2 pt-0.5 landscape-topbar">
           <Scoreboard
             roomName="联网对局"
             status={phase === 'finished' ? 'finished' : 'playing'}
