@@ -514,7 +514,7 @@ export default function RoomPage() {
               <PlayerSeat name={playerNames[effectiveMySeat]} cardCount={myHand.length}
                 isOnline={true} isCurrentTurn={currentSeat === effectiveMySeat} isMe={true} showCount={true} />
               {/* 桌面端：手牌+操作栏水平排列 */}
-              <div className="hidden sm:flex items-end gap-3 mt-2 sm:mt-4 landscape-self">
+              <div className="hidden sm:flex items-center gap-3 mt-2 sm:mt-4 landscape-self">
                 <div className="max-w-5xl px-0" style={{ transform: 'scale(var(--my-hand-scale))', transformOrigin: 'bottom center' }}>
                   <HandArea cards={myHand} lockedGroups={lockedGroups} onDragSelect={handleDragSelect} onDeselectAll={handleDeselectAll} levelRank={levelRank}
                     selectedCardIds={selectedIndices}
