@@ -401,8 +401,8 @@ p, li {
   --card-height: 3.3rem;
   --my-hand-scale: 0.65;
   --hand-scale-mobile: 0.85;
-  --card-overlap: -0.85rem;
-  --card-overlap-mobile: -0.5rem;
+  --card-overlap: -1.6rem;
+  --card-overlap-mobile: -1.6rem;
   overflow: hidden;
 }
 
