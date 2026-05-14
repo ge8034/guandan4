@@ -9,7 +9,6 @@ import { PlayingCard } from '@/components/game/PlayingCard';
 import { ActionBar } from '@/components/game/ActionBar';
 import { GameStatusBar } from '@/components/game/GameStatusBar';
 import { Scoreboard } from '@/components/game/Scoreboard';
-import { CardCounter } from '@/components/game/CardCounter';
 import { TurnTimer } from '@/components/game/TurnTimer';
 import { DealAnimation } from '@/components/game/DealAnimation';
 import { Button } from '@/components/ui/Button';
@@ -433,11 +432,6 @@ export default function RoomPage() {
 
         {/* ======= 牌桌 ======= */}
         <div className="mx-auto w-full max-w-7xl 2xl:max-w-[90rem] px-1 sm:px-2 flex-1 flex flex-col landscape-table-wrap relative">
-          {/* 记牌器 — 桌面端牌桌左侧常驻 */}
-          <div className="absolute top-1 left-1 z-10 hidden sm:block">
-            <CardCounter />
-          </div>
-
           {/* GameStatusBar — 桌面端精简,移动端完整 */}
           <div className="absolute top-1 right-1 z-10 pointer-events-none">
             <div className="pointer-events-auto">

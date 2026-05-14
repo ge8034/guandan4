@@ -127,7 +127,7 @@
 
   /* 牌桌布局 */
   --card-overlap: -2.0rem;
-  --card-overlap-mobile: -1.2rem;
+  --card-overlap-mobile: -2.0rem;
   --hand-scale: 1.05;
   --my-hand-scale: 1.05;
   --hand-scale-mobile: 1.0;
