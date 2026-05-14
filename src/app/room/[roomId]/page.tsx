@@ -120,13 +120,20 @@ export default function RoomPage() {
     speechSynthesis.speak(u);
   };
 
-  // 手机横屏自动旋转
+  // 手机横屏自动旋转 — JS直接操作DOM避免CSS选择器问题
   const [debugInfo, setDebugInfo] = useState('');
   useEffect(() => {
     const check = () => {
       const isLandscape = window.innerWidth <= 1023 && window.innerWidth > window.innerHeight;
       document.documentElement.classList.toggle('is-landscape', isLandscape);
-      setDebugInfo(`${window.innerWidth}x${window.innerHeight} ${isLandscape ? '横屏' : '竖屏'} class:${document.documentElement.classList.contains('is-landscape')}`);
+      // 直接隐藏/显示元素
+      const nav = document.querySelector('body > nav') as HTMLElement | null;
+      const footer = document.querySelector('body > footer') as HTMLElement | null;
+      const topbar = document.querySelector('.landscape-topbar') as HTMLElement | null;
+      if (nav) nav.style.display = isLandscape ? 'none' : '';
+      if (footer) footer.style.display = isLandscape ? 'none' : '';
+      if (topbar) topbar.style.display = isLandscape ? 'none' : '';
+      setDebugInfo(`${window.innerWidth}x${window.innerHeight} ${isLandscape ? '横屏' : '竖屏'} nav:${nav?.style.display || 'default'} topbar:${topbar?.style.display || 'default'}`);
     };
     check();
     if (screen?.orientation) {
@@ -140,6 +147,13 @@ export default function RoomPage() {
       }
       window.removeEventListener('resize', check);
       clearInterval(timer);
+      // 恢复
+      const nav = document.querySelector('body > nav') as HTMLElement | null;
+      const footer = document.querySelector('body > footer') as HTMLElement | null;
+      const topbar = document.querySelector('.landscape-topbar') as HTMLElement | null;
+      if (nav) nav.style.display = '';
+      if (footer) footer.style.display = '';
+      if (topbar) topbar.style.display = '';
     };
   }, []);
 
