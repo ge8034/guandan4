@@ -125,6 +125,7 @@ export default function RoomPage() {
     const check = () => {
       const isLandscape = window.innerWidth <= 1023 && window.innerWidth > window.innerHeight;
       document.documentElement.classList.toggle('is-landscape', isLandscape);
+      console.log('[横屏]', window.innerWidth, 'x', window.innerHeight, isLandscape ? 'LANDSCAPE' : 'portrait', 'class:', document.documentElement.classList.contains('is-landscape'));
     };
     check();
     if (screen?.orientation) {
