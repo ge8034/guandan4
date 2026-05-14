@@ -121,28 +121,26 @@ export default function RoomPage() {
     speechSynthesis.speak(u);
   };
 
-  // 手机横屏检测
+  // 手机横屏检测 — 使用基础宽高比判断，兼容所有浏览器
   useEffect(() => {
-    const mq = window.matchMedia('(orientation: landscape)');
     const check = () => {
       const w = window.innerWidth;
-      // 桌面端跳过横屏检测（宽度 > 1023px 时 data-landscape 无触发条件）
-      if (w > 1023) return;
       const h = window.innerHeight;
-      const angle = (window.screen.orientation?.angle ?? 0) as number;
-      const isLandscape = mq.matches || angle === 90 || angle === 270 || w > h;
-      if (isLandscape) {
+      if (w > 1023) return;
+      if (w > h) {
         document.documentElement.setAttribute('data-landscape', '');
       } else {
         document.documentElement.removeAttribute('data-landscape');
       }
     };
     check();
-    mq.addEventListener('change', check);
+    window.addEventListener('resize', check);
+    window.addEventListener('orientationchange', check);
     const timer = setInterval(check, 800);
     return () => {
+      window.removeEventListener('resize', check);
+      window.removeEventListener('orientationchange', check);
       clearInterval(timer);
-      mq.removeEventListener('change', check);
     };
   }, []);
 
