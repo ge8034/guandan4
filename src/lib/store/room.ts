@@ -6,6 +6,7 @@ import { getOrCreateUser, getUserIdSync } from '@/lib/supabase/auth';
 interface RoomStore {
   rooms: RoomWithMembers[];
   currentRoomId: string | null;
+  currentRoomType: 'practice' | 'battle' | null;
   mySeat: number | null;
   userId: string | null;
   loading: boolean;
@@ -22,6 +23,7 @@ interface RoomStore {
 export const useRoomStore = create<RoomStore>((set, get) => ({
   rooms: [],
   currentRoomId: null,
+  currentRoomType: null,
   mySeat: null,
   userId: null,
   loading: false,
@@ -52,7 +54,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   createAndJoin: async (name, type) => {
     const room = await createRoom(name, type);
     const seat = await joinRoom(room.id);
-    set({ currentRoomId: room.id, mySeat: seat });
+    set({ currentRoomId: room.id, currentRoomType: type, mySeat: seat });
     await get().loadRooms();
     return room.id;
   },
@@ -61,13 +63,17 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     const seat = await joinRoom(roomId);
     set({ currentRoomId: roomId, mySeat: seat });
     await get().loadRooms();
+    const currentRoom = get().rooms.find((r) => r.room.id === roomId);
+    if (currentRoom) {
+      set({ currentRoomType: currentRoom.room.type });
+    }
   },
 
   leave: async () => {
     const { currentRoomId } = get();
     if (currentRoomId) {
       await leaveRoom(currentRoomId);
-      set({ currentRoomId: null, mySeat: null });
+      set({ currentRoomId: null, currentRoomType: null, mySeat: null });
       await get().loadRooms();
     }
   },

@@ -74,7 +74,14 @@ export async function joinRoom(roomId: string): Promise<number> {
   const userId = getUserIdSync();
   if (!userId) throw new Error('未登录');
 
-  // 检查是否已在房间中
+  // 先清理用户在其他房间的旧记录（确保一个用户只在一个房间）
+  await supabase
+    .from('room_members')
+    .delete()
+    .neq('room_id', roomId)
+    .eq('user_id', userId);
+
+  // 检查是否已在目标房间中
   const { data: existing, error: checkErr } = await supabase
     .from('room_members')
     .select('seat_no, user_id')
@@ -109,10 +116,36 @@ export async function leaveRoom(roomId: string): Promise<void> {
     .eq('user_id', userId);
 }
 
+export async function fetchRoomType(roomId: string): Promise<'practice' | 'battle' | null> {
+  if (!isSupabaseConfigured()) return null;
+  const { data, error } = await supabase
+    .from('rooms')
+    .select('type')
+    .eq('id', roomId)
+    .single();
+  if (error || !data) return null;
+  return data.type as 'practice' | 'battle';
+}
+
+export async function fetchRoomMemberCount(roomId: string): Promise<number> {
+  if (!isSupabaseConfigured()) return 1;
+  const { data, error } = await supabase
+    .from('room_members')
+    .select('id', { count: 'exact' })
+    .eq('room_id', roomId);
+  if (error) throw error;
+  return data?.length || 0;
+}
+
 export async function deleteRoom(roomId: string): Promise<void> {
   const userId = getUserIdSync();
   if (!userId) throw new Error('请先登录后再删除房间');
-  await supabase.from('room_members').delete().eq('room_id', roomId);
-  const { error } = await supabase.from('rooms').delete().eq('id', roomId);
+  // 删除并返回被删记录，RLS 过滤时会返回空数组
+  const { data, error } = await supabase
+    .from('rooms')
+    .delete()
+    .eq('id', roomId)
+    .select();
   if (error) throw error;
+  if (!data || data.length === 0) throw new Error('无权删除该房间（仅房主可删除）');
 }

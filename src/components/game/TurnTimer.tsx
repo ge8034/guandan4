@@ -8,7 +8,7 @@ import type { Card } from '@/lib/game/types';
 
 const TOTAL_SECONDS = 30;
 
-/** 找最小合法出牌 */
+/** 找最小合法出牌（避免出级牌作为单张，级牌应留着凑组合） */
 function findSmallestPlay(
   hand: Card[],
   lastPlay: { seatNo: number; cards: Card[] } | null,
@@ -16,21 +16,27 @@ function findSmallestPlay(
   mySeat: number,
 ): Card[] | null {
   if (hand.length === 0) return null;
-  const sorted = [...hand].sort((a, b) => a.value - b.value);
+  // 按 value 排序，但级牌排到最后（优先保留）
+  const sorted = [...hand].sort((a, b) => {
+    const aIsLevel = a.value === levelRank ? 1 : 0;
+    const bIsLevel = b.value === levelRank ? 1 : 0;
+    if (aIsLevel !== bIsLevel) return aIsLevel - bIsLevel;
+    return a.value - b.value;
+  });
 
-  // 领牌或自己连续出牌：出最小单张
+  // 领牌或自己连续出牌：出最小非级牌单张
   if (!lastPlay || lastPlay.seatNo === mySeat) {
     return [sorted[0]];
   }
 
   // 跟牌：分析上家出牌类型
   const lastType = classifyHand(lastPlay.cards, levelRank);
-  if (!lastType) return [sorted[0]]; // 兜底出最小单张
+  if (!lastType) return [sorted[0]]; // 兜底
 
   const lastLen = lastPlay.cards.length;
   const lastValue = lastPlay.cards[0]?.value ?? 0;
 
-  // 尝试同类型跟牌
+  // 尝试同类型跟牌（也用排序避开级牌）
   if (lastType.type === 'single') {
     const found = sorted.find((c) => c.value > lastValue);
     return found ? [found] : null;

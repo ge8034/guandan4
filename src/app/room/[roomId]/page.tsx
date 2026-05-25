@@ -11,9 +11,11 @@ import { GameStatusBar } from '@/components/game/GameStatusBar';
 import { Scoreboard } from '@/components/game/Scoreboard';
 import { TurnTimer } from '@/components/game/TurnTimer';
 import { DealAnimation } from '@/components/game/DealAnimation';
+import { InvitePanel } from '@/components/game/InvitePanel';
 import { Button } from '@/components/ui/Button';
 import { useGameStore } from '@/lib/store/game';
 import { useRoomStore } from '@/lib/store/room';
+import { fetchRoomType, fetchRoomMemberCount } from '@/lib/supabase/rooms';
 import { useRealtime } from '@/lib/hooks/useRealtime';
 import { useSound } from '@/lib/hooks/useSound';
 import { persistTurn } from '@/lib/game/supabase-bridge';
@@ -94,7 +96,10 @@ export default function RoomPage() {
     handleRemotePlay, handleRemotePass,
   } = useGameStore();
 
-  const { mySeat, currentRoomId, userId, init: initRoom, join: joinRoom } = useRoomStore();
+  const {
+    mySeat, currentRoomId, currentRoomType, rooms, userId,
+    init: initRoom, join: joinRoom, loadRooms,
+  } = useRoomStore();
 
   const sound = useSound();
 
@@ -160,20 +165,54 @@ export default function RoomPage() {
   // 暴露 store 到 window（供 E2E 测试访问）
   if (typeof window !== 'undefined') (window as any).__gameStore = useGameStore;
 
-  // 初始化
-  useEffect(() => {
-    if (phase === 'idle') startGame();
-    setConnected(true);
-    setInitializing(false);
+  // 判断是否为练习房（currentRoomType 为 null 时默认按练习房处理）
+  const isPracticeRoom = currentRoomType !== 'battle';
 
-    async function backgroundAuth() {
+  // 初始化：先认证，再从数据库获取房间类型决定行为（避免 SSR 时 Zustand 状态丢失）
+  useEffect(() => {
+    setConnected(true);
+
+    async function init() {
       try {
         if (!userId) await initRoom();
         if (currentRoomId !== roomId) await joinRoom(roomId);
       } catch { /* 离线模式 */ }
+
+      // 直接从数据库查询房间类型，不依赖 store（SSR 会丢失状态）
+      let roomType: string | null = useRoomStore.getState().currentRoomType;
+      if (!roomType) {
+        roomType = await fetchRoomType(roomId);
+      }
+      const gameState = useGameStore.getState();
+      if (roomType !== 'battle' && gameState.phase === 'idle') {
+        gameState.startGame();
+      }
+      setInitializing(false);
     }
-    backgroundAuth();
+    init();
   }, []);
+
+  // 对战房：轮询成员数量，满 4 人后自动开局
+  useEffect(() => {
+    if (isPracticeRoom || phase !== 'idle') return;
+    let cancelled = false;
+    const interval = setInterval(async () => {
+      if (cancelled) return;
+      try {
+        const count = await fetchRoomMemberCount(roomId);
+        if (count >= 4) {
+          const state = useGameStore.getState();
+          if (state.phase === 'idle') {
+            state.startGame();
+          }
+        }
+      } catch { /* 离线模式 */ }
+    }, 2000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [isPracticeRoom, phase, roomId]);
 
   // 游戏结束 → 特效 + 跳转结算页
   useEffect(() => {
@@ -221,11 +260,11 @@ export default function RoomPage() {
     prevPhaseRef.current = phase;
   }, [phase, roundNumber]);
 
-  // AI 自动出牌 — 使用 setInterval 轮询，避免 setTimeout 锁问题
+  // AI 自动出牌 — 仅练习房启用，使用 setInterval 轮询避免 setTimeout 锁问题
   const lastAiActionRef = useRef<string>('');
 
   useEffect(() => {
-    if (phase !== 'playing') return;
+    if (!isPracticeRoom || phase !== 'playing') return;
 
     const interval = setInterval(() => {
       const state = useGameStore.getState();
@@ -426,6 +465,42 @@ export default function RoomPage() {
     reportedRef.current = new Set();
   }, [roundNumber]);
 
+  // 对战房等待玩家界面
+  if (!isPracticeRoom && phase === 'idle' && !initializing) {
+    const currentMemberCount = rooms.find((r) => r.room.id === roomId)?.playerCount || 1;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <div className="poker-table-bg poker-table-border rounded-xl p-8 flex flex-col items-center gap-4 max-w-md mx-auto">
+          <div className="text-white text-lg font-semibold">等待玩家加入...</div>
+          <div className="flex gap-2 items-center">
+            {[0, 1, 2, 3].map((seat) => (
+              <div
+                key={seat}
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors ${
+                  seat < currentMemberCount
+                    ? 'bg-accent/20 border-accent text-accent'
+                    : 'bg-white/5 border-white/20 text-white/30'
+                }`}
+              >
+                {seat < currentMemberCount ? playerNames[seat][0] : '?'}
+              </div>
+            ))}
+          </div>
+          <div className="text-white/60 text-sm">
+            {currentMemberCount}/4 人已加入
+          </div>
+          <div className="text-white/30 text-xs">
+            满 4 人后自动开始
+          </div>
+
+          <div className="w-full border-t border-white/10 pt-4 mt-2">
+            <InvitePanel roomId={roomId} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (initializing || phase === 'idle' || !connected) {
     return <RoomSkeleton />;
   }
@@ -479,7 +554,7 @@ export default function RoomPage() {
               </div>
               <PlayerSeat name={playerNames[duijiaSeat]} cardCount={hands[duijiaSeat]?.length || 0}
                 isOnline={true} isCurrentTurn={currentSeat === duijiaSeat} isMe={false} showCount={showCount(duijiaSeat)}
-                isAiThinking={currentSeat === duijiaSeat && duijiaSeat !== effectiveMySeat && phase === 'playing'} />
+                isAiThinking={isPracticeRoom && currentSeat === duijiaSeat && duijiaSeat !== effectiveMySeat && phase === 'playing'} />
             </div>
 
             {/* 中间：上家(0) | 出牌区 | 下家(2) */}
@@ -489,14 +564,14 @@ export default function RoomPage() {
                 <CardBacks count={hands[shangjiaSeat]?.length || 0} />
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)}
-                  isAiThinking={currentSeat === shangjiaSeat && shangjiaSeat !== effectiveMySeat && phase === 'playing'} />
+                  isAiThinking={isPracticeRoom && currentSeat === shangjiaSeat && shangjiaSeat !== effectiveMySeat && phase === 'playing'} />
               </div>
 
               {/* 移动端上家(简化为仅座位) */}
               <div className="flex sm:hidden items-center self-stretch shrink-0 landscape-left-player">
                 <PlayerSeat name={playerNames[shangjiaSeat]} cardCount={hands[shangjiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === shangjiaSeat} isMe={false} showCount={showCount(shangjiaSeat)}
-                  isAiThinking={currentSeat === shangjiaSeat && shangjiaSeat !== effectiveMySeat && phase === 'playing'} />
+                  isAiThinking={isPracticeRoom && currentSeat === shangjiaSeat && shangjiaSeat !== effectiveMySeat && phase === 'playing'} />
               </div>
 
               {/* 中：牌桌出牌区 */}
@@ -509,14 +584,14 @@ export default function RoomPage() {
               <div className="flex sm:hidden items-center self-stretch shrink-0 landscape-right-player">
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)}
-                  isAiThinking={currentSeat === xiajiaSeat && xiajiaSeat !== effectiveMySeat && phase === 'playing'} />
+                  isAiThinking={isPracticeRoom && currentSeat === xiajiaSeat && xiajiaSeat !== effectiveMySeat && phase === 'playing'} />
               </div>
 
               {/* 右：下家 */}
               <div className="hidden sm:flex items-center self-stretch shrink-0 gap-2 landscape-right-player">
                 <PlayerSeat name={playerNames[xiajiaSeat]} cardCount={hands[xiajiaSeat]?.length || 0}
                   isOnline={true} isCurrentTurn={currentSeat === xiajiaSeat} isMe={false} showCount={showCount(xiajiaSeat)}
-                  isAiThinking={currentSeat === xiajiaSeat && xiajiaSeat !== effectiveMySeat && phase === 'playing'} />
+                  isAiThinking={isPracticeRoom && currentSeat === xiajiaSeat && xiajiaSeat !== effectiveMySeat && phase === 'playing'} />
                 <CardBacks count={hands[xiajiaSeat]?.length || 0} />
               </div>
             </div>
